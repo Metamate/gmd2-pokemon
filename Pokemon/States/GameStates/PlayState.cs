@@ -6,6 +6,8 @@ using Pokemon.Entities;
 using Pokemon.Input;
 using Pokemon.States.PlayerStates;
 using Pokemon.World;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -17,7 +19,7 @@ public sealed class PlayState : GameStateBase
 {
     private Level _level;
 
-    public PlayState(Game1 game) : base(game) { }
+    public PlayState(Core game) : base(game) { }
 
     public override void Enter()
     {

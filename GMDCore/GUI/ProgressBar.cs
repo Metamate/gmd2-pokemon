@@ -1,11 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Pokemon.GUI;
+namespace GMDCore.GUI;
 
 /// <summary>
-/// A simple filled progress bar with a black outline. Used for HP and EXP bars.
-/// Equivalent to the Lua ProgressBar class.
+/// A simple filled progress bar with a black outline.
 /// </summary>
 public sealed class ProgressBar
 {
@@ -37,7 +36,6 @@ public sealed class ProgressBar
                 BarColor);
         }
 
-        // Black outline
         DrawOutline(spriteBatch, pixel);
     }
 

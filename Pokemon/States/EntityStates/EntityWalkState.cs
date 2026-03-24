@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using Pokemon.Entities;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
 using Pokemon.World;
 
 namespace Pokemon.States.EntityStates;

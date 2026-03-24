@@ -1,7 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 

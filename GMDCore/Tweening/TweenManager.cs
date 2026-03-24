@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace Pokemon.Tweening;
+namespace GMDCore.Tweening;
 
 /// <summary>
-/// Lightweight tween/timer system that replaces the Lua knife.timer library.
-/// All tweening is linear interpolation. Callbacks fire on the game thread.
+/// Lightweight tween/timer system. All tweening is linear interpolation.
+/// Callbacks fire on the game thread.
 /// </summary>
 public sealed class TweenManager
 {
@@ -121,8 +121,8 @@ public sealed class TweenManager
     // Manager state
     // -------------------------------------------------------------------------
 
-    private readonly List<object> _tasks  = new();
-    private readonly List<object> _toAdd  = new();
+    private readonly List<object> _tasks = new();
+    private readonly List<object> _toAdd = new();
 
     private TweenManager() { }
 
@@ -165,8 +165,7 @@ public sealed class TweenManager
         _toAdd.Clear();
 
         // Use an index-based loop so that if Clear() is called inside a callback
-        // (which sets _tasks.Count to 0), the loop terminates cleanly rather than
-        // throwing InvalidOperationException from a modified-during-enumeration List.
+        // (which sets _tasks.Count to 0), the loop terminates cleanly.
         for (int i = 0; i < _tasks.Count; i++)
         {
             switch (_tasks[i])

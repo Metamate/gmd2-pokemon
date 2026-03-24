@@ -3,9 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Battle;
-using Pokemon.GUI;
+using GMDCore.GUI;
 using Pokemon.PokemonGame;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -26,7 +28,7 @@ public sealed class TakeTurnState : GameStateBase
     private readonly ProgressBar     _firstBar;
     private readonly ProgressBar     _secondBar;
 
-    public TakeTurnState(Game1 game, StateStack stack, BattleState battle)
+    public TakeTurnState(Core game, StateStack stack, BattleState battle)
         : base(game)
     {
         _stack  = stack;

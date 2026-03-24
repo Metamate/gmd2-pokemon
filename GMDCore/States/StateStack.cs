@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.States.GameStates;
 
-namespace Pokemon.States;
+namespace GMDCore.States;
 
 /// <summary>
 /// A stack of game states where only the top state receives Update() calls
@@ -13,8 +11,6 @@ namespace Pokemon.States;
 /// States pushed onto the stack have Enter() called; popped states have Exit() called.
 /// This allows overlapping states such as a battle menu on top of the battle screen
 /// on top of the overworld.
-///
-/// Equivalent to the Lua StateStack class.
 /// </summary>
 public sealed class StateStack
 {

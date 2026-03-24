@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.GUI;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -17,7 +19,7 @@ public sealed class BattleMenuState : GameStateBase
     private readonly BattleState _battleState;
     private readonly Menu        _menu;
 
-    public BattleMenuState(Game1 game, StateStack stack, BattleState battleState)
+    public BattleMenuState(Core game, StateStack stack, BattleState battleState)
         : base(game)
     {
         _stack       = stack;

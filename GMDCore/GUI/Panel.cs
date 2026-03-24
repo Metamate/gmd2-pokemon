@@ -1,11 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Pokemon.GUI;
+namespace GMDCore.GUI;
 
 /// <summary>
 /// A bordered panel background (white outer, dark inner rectangle).
-/// Equivalent to the Lua Panel class.
 /// </summary>
 public sealed class Panel
 {

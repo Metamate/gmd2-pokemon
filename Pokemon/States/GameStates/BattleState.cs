@@ -4,9 +4,11 @@ using Pokemon.Audio;
 using Pokemon.Battle;
 using Pokemon.Definitions;
 using Pokemon.Entities;
-using Pokemon.GUI;
+using GMDCore.GUI;
 using Pokemon.PokemonGame;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 

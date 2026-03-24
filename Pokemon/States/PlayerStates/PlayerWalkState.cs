@@ -6,6 +6,7 @@ using Pokemon.Input;
 using Pokemon.States.EntityStates;
 using Pokemon.States.GameStates;
 using Pokemon.World;
+using GMDCore.States;
 
 namespace Pokemon.States.PlayerStates;
 

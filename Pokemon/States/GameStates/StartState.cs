@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Definitions;
 using Pokemon.PokemonGame;
-using Pokemon.Tweening;
+using GMDCore.Tweening;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -23,7 +25,7 @@ public sealed class StartState : GameStateBase
     private static readonly Color TitleColor = new(24, 24, 24);
     private static readonly Color ShadowColor = new(45, 184, 45, 124);
 
-    public StartState(Game1 game) : base(game) { }
+    public StartState(Core game) : base(game) { }
 
     public override void Enter()
     {

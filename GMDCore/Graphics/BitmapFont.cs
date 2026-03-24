@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Pokemon.GUI;
+namespace GMDCore.Graphics;
 
 /// <summary>
 /// A pixel-perfect bitmap font backed by a pre-generated glyph atlas.

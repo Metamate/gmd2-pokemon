@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.GUI;
+using GMDCore.States;
+using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -16,7 +18,7 @@ public sealed class DialogueState : GameStateBase
     private readonly Textbox    _textbox;
     private readonly Action     _onClose;
 
-    public DialogueState(Game1 game, StateStack stack, string text, Action onClose = null)
+    public DialogueState(Core game, StateStack stack, string text, Action onClose = null)
         : base(game)
     {
         _stack   = stack;

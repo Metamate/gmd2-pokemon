@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Input;
+using GMDCore.Graphics;
+using GMDCore.GUI;
 
 namespace Pokemon.GUI;
 
