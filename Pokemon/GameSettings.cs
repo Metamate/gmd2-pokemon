@@ -1,0 +1,65 @@
+namespace Pokemon;
+
+public static class GameSettings
+{
+    public const int WindowWidth  = 1280;
+    public const int WindowHeight = 720;
+    public const int VirtualWidth  = 384;
+    public const int VirtualHeight = 216;
+    public const int TileSize = 16;
+
+    // The level is 50x50 tiles but the player can only move within the visible viewport.
+    // EntityWalkState enforces these bounds (matching the Lua source).
+    public const int MapCols = 24;
+    public const int MapRows = 13;
+
+    // Player starting grid position (1-indexed, matching Lua)
+    public const int PlayerStartMapX = 10;
+    public const int PlayerStartMapY = 10;
+
+    // Tall grass starts at row 11 (1-indexed, matching Lua)
+    public const int TallGrassStartRow = 11;
+
+    // Tile IDs (1-indexed, matching Lua tile_ids.lua)
+    public static readonly int[] TileGrass = { 46, 47 };
+    public const int TileEmpty     = 101;
+    public const int TileTallGrass = 42;
+
+    // Walk animation
+    public const double WalkAnimIntervalSeconds = 0.15;
+
+    // Time (seconds) to tween one tile-step walk
+    public const float WalkTweenDuration = 0.5f;
+
+    // 1-in-N chance of a random encounter when stepping into tall grass
+    public const int EncounterChance = 10;
+
+    // Pokemon battle
+    public const int PlayerStartLevel   = 5;
+    public const int OpponentLevelMin   = 2;
+    public const int OpponentLevelMax   = 6; // exclusive upper bound
+
+    // Battle intro slide-in duration (seconds)
+    public const float BattleSlideInDuration = 1f;
+
+    // Battle attack animation timing (seconds)
+    public const float AttackPauseDuration  = 0.5f;
+    public const float AttackBlinkInterval  = 0.1f;
+    public const int   AttackBlinkCount     = 6;
+    public const float HpTweenDuration      = 0.5f;
+    public const float ExpTweenDelay        = 1.5f;
+    public const float ExpTweenDuration     = 0.5f;
+    public const float FaintTweenDuration   = 0.2f;
+
+    // Fade transition duration (seconds)
+    public const float FadeDuration = 1f;
+
+    // GUI
+    public const int   TextboxLineHeight = 16; // pixels per text line
+    public const int   TextboxPadding    = 4;  // inner padding from panel edge
+    public const int   TextboxLinesPerPage = 3;
+
+    // Selection menu cursor sprite size
+    public const int CursorWidth  = 8;
+    public const int CursorHeight = 8;
+}

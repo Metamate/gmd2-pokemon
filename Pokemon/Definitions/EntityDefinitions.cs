@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using GMDCore.Graphics;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Pokemon.Definitions;
+
+/// <summary>
+/// Loads and provides Pokemon battle sprite textures.
+/// Entity walk/idle animations are built from the shared EntityAtlas at runtime.
+/// Equivalent to the Lua entity_defs.lua + global gTextures table for pokemon sprites.
+/// </summary>
+public static class EntityDefinitions
+{
+    private static readonly Dictionary<string, Texture2D> _pokemonTextures = new();
+
+    public static void LoadContent(ContentManager content)
+    {
+        string[] keys =
+        {
+            "images/pokemon/aardart-front",  "images/pokemon/aardart-back",
+            "images/pokemon/agnite-front",   "images/pokemon/agnite-back",
+            "images/pokemon/anoleaf-front",  "images/pokemon/anoleaf-back",
+            "images/pokemon/bamboon-front",  "images/pokemon/bamboon-back",
+            "images/pokemon/cardiwing-front","images/pokemon/cardiwing-back"
+        };
+
+        foreach (var key in keys)
+            _pokemonTextures[key] = content.Load<Texture2D>(key);
+    }
+
+    /// <summary>Retrieve a pre-loaded Pokemon battle sprite by its content path key.</summary>
+    public static Texture2D GetPokemonSprite(string key)
+        => _pokemonTextures.TryGetValue(key, out var tex) ? tex : null;
+
+    // ---- Entity walk/idle animations ----
+    // Frames are 0-indexed into the entities atlas (Lua frames are 1-indexed; subtract 1).
+
+    /// <summary>
+    /// Build the standard walk + idle animation set from the shared entity atlas.
+    /// All player and NPC entities share the same sprite sheet.
+    /// </summary>
+    public static Dictionary<string, Animation> CreateEntityAnimations(TextureAtlas atlas)
+    {
+        return new Dictionary<string, Animation>
+        {
+            ["walk-down"]  = atlas.CreateAnimation(new[] {3, 4, 5, 4},   GameSettings.WalkAnimIntervalSeconds),
+            ["walk-up"]    = atlas.CreateAnimation(new[] {39, 40, 41, 40}, GameSettings.WalkAnimIntervalSeconds),
+            ["walk-left"]  = atlas.CreateAnimation(new[] {15, 16, 17, 16}, GameSettings.WalkAnimIntervalSeconds),
+            ["walk-right"] = atlas.CreateAnimation(new[] {27, 28, 29, 28}, GameSettings.WalkAnimIntervalSeconds),
+            ["idle-down"]  = atlas.CreateAnimation(new[] {4},  GameSettings.WalkAnimIntervalSeconds),
+            ["idle-up"]    = atlas.CreateAnimation(new[] {40}, GameSettings.WalkAnimIntervalSeconds),
+            ["idle-left"]  = atlas.CreateAnimation(new[] {16}, GameSettings.WalkAnimIntervalSeconds),
+            ["idle-right"] = atlas.CreateAnimation(new[] {28}, GameSettings.WalkAnimIntervalSeconds),
+        };
+    }
+}
