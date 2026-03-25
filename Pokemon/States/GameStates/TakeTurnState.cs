@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Battle;
 using GMDCore.GUI;
-using Pokemon.PokemonGame;
+using Pokemon.Mons;
 using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
@@ -18,8 +18,8 @@ public sealed class TakeTurnState : GameStateBase
     private readonly StateStack  _stack;
     private readonly BattleState _battle;
 
-    private readonly PokemonInstance _firstPokemon;
-    private readonly PokemonInstance _secondPokemon;
+    private readonly Mon _firstPokemon;
+    private readonly Mon _secondPokemon;
     private readonly BattleSprite    _firstSprite;
     private readonly BattleSprite    _secondSprite;
     private readonly ProgressBar     _firstBar;
@@ -78,7 +78,7 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Push(new BattleMenuState(Game, _stack, _battle));
     }
 
-    private void ExecuteAttack(PokemonInstance attacker, PokemonInstance defender,
+    private void ExecuteAttack(Mon attacker, Mon defender,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
                                 ProgressBar attackerBar, ProgressBar defenderBar,
                                 Action onEnd)

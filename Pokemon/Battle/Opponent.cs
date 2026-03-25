@@ -1,4 +1,4 @@
-using Pokemon.PokemonGame;
+using Pokemon.Mons;
 
 namespace Pokemon.Battle;
 
@@ -12,7 +12,7 @@ public sealed class Opponent
     public static Opponent CreateWild()
     {
         int level  = System.Random.Shared.Next(GameSettings.OpponentLevelMin, GameSettings.OpponentLevelMax);
-        var pokemon = new PokemonInstance(PokemonDefinitions.GetRandom(), level);
+        var pokemon = new Mon(PokemonDefinitions.GetRandom(), level);
         return new Opponent(new Party(new[] { pokemon }));
     }
 }

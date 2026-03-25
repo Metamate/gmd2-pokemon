@@ -202,6 +202,12 @@
 /processorParam:TextureFormat=Color
 /build:images/pokemon/cardiwing-back.png
 
+#begin data/pokemon_definitions.xml
+/copy:data/pokemon_definitions.xml
+
+#begin data/entity_animations.xml
+/copy:data/entity_animations.xml
+
 #begin sounds/field_music.wav
 /importer:WavImporter
 /processor:SongProcessor

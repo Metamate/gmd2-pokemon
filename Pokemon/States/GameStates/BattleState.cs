@@ -5,7 +5,7 @@ using Pokemon.Battle;
 using Pokemon.Definitions;
 using Pokemon.Entities;
 using GMDCore.GUI;
-using Pokemon.PokemonGame;
+using Pokemon.Mons;
 using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
@@ -28,8 +28,8 @@ public sealed class BattleState : GameStateBase
     public  ProgressBar OpponentHealthBar { get; private set; }
     public  ProgressBar PlayerExpBar      { get; private set; }
 
-    public  PokemonInstance PlayerPokemon   { get; }
-    public  PokemonInstance OpponentPokemon { get; }
+    public  Mon PlayerPokemon   { get; }
+    public  Mon OpponentPokemon { get; }
 
     private bool _slideStarted;
     public  bool RenderHealthBars { get; set; }

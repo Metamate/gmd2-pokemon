@@ -1,6 +1,6 @@
 using GMDCore.Graphics;
 using Pokemon.Definitions;
-using Pokemon.PokemonGame;
+using Pokemon.Mons;
 
 namespace Pokemon.Entities;
 
@@ -24,7 +24,7 @@ public sealed class Player : Entity
 
         Party = new Party(new[]
         {
-            new PokemonInstance(PokemonDefinitions.GetRandom(), GameSettings.PlayerStartLevel)
+            new Mon(PokemonDefinitions.GetRandom(), GameSettings.PlayerStartLevel)
         });
     }
 }

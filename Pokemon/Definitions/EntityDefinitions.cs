@@ -1,31 +1,35 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using GMDCore.Graphics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Entities;
+using Pokemon.Mons;
 
 namespace Pokemon.Definitions;
 
-// Loads and provides Pokemon battle sprite textures.
-// Entity walk/idle animations are built from the shared EntityAtlas at runtime.
+// Loads Pokemon battle sprites and entity animations from data files.
 public static class EntityDefinitions
 {
     private static readonly Dictionary<string, Texture2D> _pokemonTextures = new();
 
     public static void LoadContent(ContentManager content)
     {
-        string[] keys =
+        // Load battle sprites for every known species
+        foreach (var species in PokemonDefinitions.All)
         {
-            "images/pokemon/aardart-front",  "images/pokemon/aardart-back",
-            "images/pokemon/agnite-front",   "images/pokemon/agnite-back",
-            "images/pokemon/anoleaf-front",  "images/pokemon/anoleaf-back",
-            "images/pokemon/bamboon-front",  "images/pokemon/bamboon-back",
-            "images/pokemon/cardiwing-front","images/pokemon/cardiwing-back"
-        };
+            _pokemonTextures[species.BattleSpriteFront] = content.Load<Texture2D>(species.BattleSpriteFront);
+            _pokemonTextures[species.BattleSpriteBack]  = content.Load<Texture2D>(species.BattleSpriteBack);
+        }
 
-        foreach (var key in keys)
-            _pokemonTextures[key] = content.Load<Texture2D>(key);
+        // Load entity animation definitions
+        string path = Path.Combine(content.RootDirectory, "data/entity_animations.xml");
+        using var stream = TitleContainer.OpenStream(path);
+        _entityAnimationsDoc = XDocument.Load(stream);
     }
 
     // Retrieve a pre-loaded Pokemon battle sprite by its content path key.
@@ -34,22 +38,25 @@ public static class EntityDefinitions
             ? tex
             : throw new KeyNotFoundException($"Pokemon sprite not found: '{key}'");
 
-    // ---- Entity walk/idle animations ----
-
-    // Build the standard walk + idle animation set from the shared entity atlas.
-    // All player and NPC entities share the same sprite sheet.
+    // Build the walk + idle animation set from the shared entity atlas.
     public static Dictionary<string, Animation> CreateEntityAnimations(TextureAtlas atlas)
     {
-        return new Dictionary<string, Animation>
+        var root     = _entityAnimationsDoc.Root;
+        double interval = double.Parse(root.Attribute("interval").Value);
+        var animations  = new Dictionary<string, Animation>();
+
+        foreach (var el in root.Elements("Animation"))
         {
-            [AnimationKeys.WalkDown]  = atlas.CreateAnimation(new[] {3, 4, 5, 4},    GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.WalkUp]    = atlas.CreateAnimation(new[] {39, 40, 41, 40}, GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.WalkLeft]  = atlas.CreateAnimation(new[] {15, 16, 17, 16}, GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.WalkRight] = atlas.CreateAnimation(new[] {27, 28, 29, 28}, GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.IdleDown]  = atlas.CreateAnimation(new[] {4},  GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.IdleUp]    = atlas.CreateAnimation(new[] {40}, GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.IdleLeft]  = atlas.CreateAnimation(new[] {16}, GameSettings.WalkAnimIntervalSeconds),
-            [AnimationKeys.IdleRight] = atlas.CreateAnimation(new[] {28}, GameSettings.WalkAnimIntervalSeconds),
-        };
+            string name    = el.Attribute("name").Value;
+            int[]  frames  = el.Attribute("frames").Value
+                               .Split(',')
+                               .Select(int.Parse)
+                               .ToArray();
+            animations[name] = atlas.CreateAnimation(frames, interval);
+        }
+
+        return animations;
     }
+
+    private static XDocument _entityAnimationsDoc;
 }

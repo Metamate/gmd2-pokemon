@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Definitions;
 using Pokemon.Input;
-using Pokemon.PokemonGame;
+using Pokemon.Mons;
 using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;

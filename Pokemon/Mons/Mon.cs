@@ -1,9 +1,9 @@
 using System;
 
-namespace Pokemon.PokemonGame;
+namespace Pokemon.Mons;
 
 // A runtime Pokemon instance with stats calculated from its species definition and level.
-public sealed class PokemonInstance
+public sealed class Mon
 {
     public string Name              { get; }
     public string BattleSpriteFront { get; }
@@ -26,7 +26,7 @@ public sealed class PokemonInstance
     public int CurrentExp  { get; set; }
     public int ExpToLevel  { get; private set; }
 
-    public PokemonInstance(PokemonSpecies def, int level)
+    public Mon(PokemonSpecies def, int level)
     {
         Name              = def.Name;
         BattleSpriteFront = def.BattleSpriteFront;
@@ -84,7 +84,7 @@ public sealed class PokemonInstance
     public void Heal() => CurrentHp = Hp;
 
     // Damage this Pokemon deals to a defender: attack minus defense, minimum 1.
-    public int CalcDamageTo(PokemonInstance defender) => Math.Max(1, Attack - defender.Defense);
+    public int CalcDamageTo(Mon defender) => Math.Max(1, Attack - defender.Defense);
 
     // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;

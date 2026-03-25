@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Definitions;
+using Pokemon.Mons;
 using Pokemon.States.GameStates;
 
 namespace Pokemon;
@@ -64,7 +65,8 @@ public sealed class Game1 : Core
 
         _renderTarget = new RenderTarget2D(GraphicsDevice, GameSettings.VirtualWidth, GameSettings.VirtualHeight);
 
-        // Load Pokemon battle sprite textures via EntityDefinitions
+        // Species data must load before EntityDefinitions (sprite paths are derived from it)
+        PokemonDefinitions.LoadContent(Content);
         EntityDefinitions.LoadContent(Content);
 
         SoundManager.LoadContent(Content);
