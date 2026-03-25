@@ -37,8 +37,7 @@ public sealed class PlayState : GameStateBase
         if (GameController.Heal)
         {
             SoundManager.PlayHeal();
-            var pokemon = _level.Player.Party.Pokemon[0];
-            pokemon.CurrentHp = pokemon.Hp;
+            _level.Player.Party.Pokemon[0].Heal();
 
             Game.StateStack.Push(new DialogueState(Game, Game.StateStack,
                 "Your Pokemon has been healed!"));

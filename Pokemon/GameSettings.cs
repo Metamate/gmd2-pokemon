@@ -8,7 +8,7 @@ public static class GameSettings
     public const int VirtualHeight = 216;
     public const int TileSize = 16;
 
-    // The level is 50x50 tiles but the player can only move within the visible viewport.
+    // Level dimensions in tiles (matches the visible viewport at 384×216 with 16px tiles)
     public const int MapCols = 24;
     public const int MapRows = 13;
 

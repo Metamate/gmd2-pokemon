@@ -9,11 +9,8 @@ namespace Pokemon.World;
 // The overworld level: two tile layers (base grass + tall grass) and the player entity.
 public sealed class Level
 {
-    private const int LevelWidth  = 50;
-    private const int LevelHeight = 50;
-
-    public TileMap BaseLayer  { get; } = new(LevelWidth, LevelHeight);
-    public TileMap GrassLayer { get; } = new(LevelWidth, LevelHeight);
+    public TileMap BaseLayer  { get; } = new(GameSettings.MapCols, GameSettings.MapRows);
+    public TileMap GrassLayer { get; } = new(GameSettings.MapCols, GameSettings.MapRows);
 
     public Player Player { get; }
 
@@ -30,9 +27,9 @@ public sealed class Level
     {
         var rng = Random.Shared;
 
-        for (int y = 0; y < LevelHeight; y++)
+        for (int y = 0; y < GameSettings.MapRows; y++)
         {
-            for (int x = 0; x < LevelWidth; x++)
+            for (int x = 0; x < GameSettings.MapCols; x++)
             {
                 int baseId = GameSettings.TileGrass[rng.Next(GameSettings.TileGrass.Length)];
                 BaseLayer.SetTile(x, y, baseId);

@@ -80,6 +80,12 @@ public sealed class PokemonInstance
     // Exp required to reach the next level from level n.
     private static int CalcExpToLevel(int level) => (int)(level * level * 5 * 0.75f);
 
+    // Restore HP to full.
+    public void Heal() => CurrentHp = Hp;
+
+    // Damage this Pokemon deals to a defender: attack minus defense, minimum 1.
+    public int CalcDamageTo(PokemonInstance defender) => Math.Max(1, Attack - defender.Defense);
+
     // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;
 }

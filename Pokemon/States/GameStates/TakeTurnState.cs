@@ -113,7 +113,7 @@ public sealed class TakeTurnState : GameStateBase
                             .Finish(() =>
                             {
                                 defenderSprite.Blinking = false;
-                                int dmg = Math.Max(1, attacker.Attack - defender.Defense);
+                                int dmg = attacker.CalcDamageTo(defender);
                                 float targetHp = Math.Max(0, defender.CurrentHp - dmg);
 
                                 TweenManager.Instance.Tween(GameSettings.HpTweenDuration)

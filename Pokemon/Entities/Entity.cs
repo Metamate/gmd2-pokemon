@@ -43,7 +43,8 @@ public class Entity
     // Switch the active animation by key name.
     public void ChangeAnimation(string key)
     {
-        if (!Animations.TryGetValue(key, out var anim)) return;
+        if (!Animations.TryGetValue(key, out var anim))
+            throw new KeyNotFoundException($"Animation key not found: '{key}'");
         CurrentAnimationKey = key;
         _sprite.Play(anim);
     }
