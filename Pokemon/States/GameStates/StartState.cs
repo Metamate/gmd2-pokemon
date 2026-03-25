@@ -69,7 +69,7 @@ public sealed class StartState : GameStateBase
     {
         if (Input.GameController.Confirm)
         {
-            Game.StateStack.Push(new FadeInState(Game.StateStack, Color.White, GameSettings.FadeDuration,
+            Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
                 () =>
                 {
                     Game.StateStack.Pop(); // pop StartState
@@ -77,8 +77,7 @@ public sealed class StartState : GameStateBase
                     Game.StateStack.Push(new DialogueState(Game, Game.StateStack,
                         "Welcome to the world of 50Mon! Walk in the tall grass to fight monsters. " +
                         "Press P to heal. Press Enter or Space to dismiss messages."));
-                    Game.StateStack.Push(new FadeOutState(Game.StateStack, Color.White,
-                        GameSettings.FadeDuration, () => { }));
+                    Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
                 }));
         }
     }

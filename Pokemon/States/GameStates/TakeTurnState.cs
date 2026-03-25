@@ -28,6 +28,9 @@ public sealed class TakeTurnState : GameStateBase
     private readonly ProgressBar     _firstBar;
     private readonly ProgressBar     _secondBar;
 
+    // Stored between OnVictoryMessageClosed and OnExpTweenComplete.
+    private int _earnedExp;
+
     public TakeTurnState(Core game, StateStack stack, BattleState battle)
         : base(game)
     {
@@ -54,27 +57,29 @@ public sealed class TakeTurnState : GameStateBase
         }
     }
 
-    public override void Enter()
-    {
-        ExecuteAttack(_firstPokemon, _secondPokemon, _firstSprite, _secondSprite, _firstBar, _secondBar,
-            () =>
-            {
-                _stack.Pop(); // pop first attack message
-                if (CheckDeaths()) { _stack.Pop(); return; }
-
-                ExecuteAttack(_secondPokemon, _firstPokemon, _secondSprite, _firstSprite, _secondBar, _firstBar,
-                    () =>
-                    {
-                        _stack.Pop(); // pop second attack message
-                        if (CheckDeaths()) { _stack.Pop(); return; }
-
-                        _stack.Pop(); // pop TakeTurnState itself
-                        _stack.Push(new BattleMenuState(Game, _stack, _battle));
-                    });
-            });
-    }
+    public override void Enter() =>
+        ExecuteAttack(_firstPokemon, _secondPokemon, _firstSprite, _secondSprite,
+                      _firstBar, _secondBar, OnFirstAttackComplete);
 
     // ---- Attack sequence ----
+
+    private void OnFirstAttackComplete()
+    {
+        _stack.Pop(); // pop first attack message
+        if (CheckDeaths()) { _stack.Pop(); return; }
+
+        ExecuteAttack(_secondPokemon, _firstPokemon, _secondSprite, _firstSprite,
+                      _secondBar, _firstBar, OnSecondAttackComplete);
+    }
+
+    private void OnSecondAttackComplete()
+    {
+        _stack.Pop(); // pop second attack message
+        if (CheckDeaths()) { _stack.Pop(); return; }
+
+        _stack.Pop(); // pop TakeTurnState itself
+        _stack.Push(new BattleMenuState(Game, _stack, _battle));
+    }
 
     private void ExecuteAttack(PokemonInstance attacker, PokemonInstance defender,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
@@ -127,93 +132,96 @@ public sealed class TakeTurnState : GameStateBase
         return false;
     }
 
+    // ---- Faint path ----
+
     private void HandleFaint()
     {
         TweenManager.Instance.Tween(GameSettings.FaintTweenDuration)
             .Add(v => _battle.PlayerSprite.Y = v, _battle.PlayerSprite.Y, GameSettings.VirtualHeight)
-            .Finish(() =>
-            {
-                _stack.Push(new BattleMessageState(Game, _stack, "You fainted!", () =>
-                {
-                    _stack.Push(new FadeInState(_stack, Color.Black, GameSettings.FadeDuration, () =>
-                    {
-                        _battle.PlayerPokemon.CurrentHp = _battle.PlayerPokemon.Hp;
-                        SoundManager.StopMusic();
-                        SoundManager.PlayFieldMusic();
-
-                        _stack.Pop(); // pop BattleState
-                        _stack.Push(new FadeOutState(_stack, Color.Black, GameSettings.FadeDuration, () =>
-                        {
-                            _stack.Push(new DialogueState(Game, _stack,
-                                "Your Pokemon has been fully restored; try again!"));
-                        }));
-                    }));
-                }));
-            });
+            .Finish(OnPlayerFainted);
     }
+
+    private void OnPlayerFainted() =>
+        _stack.Push(new BattleMessageState(Game, _stack, "You fainted!", OnFaintMessageClosed));
+
+    private void OnFaintMessageClosed() =>
+        _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 0f, 1f, OnFadeToBlackComplete));
+
+    private void OnFadeToBlackComplete()
+    {
+        _battle.PlayerPokemon.CurrentHp = _battle.PlayerPokemon.Hp;
+        SoundManager.StopMusic();
+        SoundManager.PlayFieldMusic();
+        _stack.Pop(); // pop BattleState
+        _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 1f, 0f, OnFadeFromBlackComplete));
+    }
+
+    private void OnFadeFromBlackComplete() =>
+        _stack.Push(new DialogueState(Game, _stack, "Your Pokemon has been fully restored; try again!"));
+
+    // ---- Victory path ----
 
     private void HandleVictory()
     {
         TweenManager.Instance.Tween(GameSettings.FaintTweenDuration)
             .Add(v => _battle.OpponentSprite.Y = v, _battle.OpponentSprite.Y, GameSettings.VirtualHeight)
-            .Finish(() =>
-            {
-                SoundManager.StopMusic();
-                SoundManager.PlayVictoryMusic();
-
-                _stack.Push(new BattleMessageState(Game, _stack, "Victory!", () =>
-                {
-                    int exp = _battle.OpponentPokemon.ExpReward;
-
-                    _stack.Push(new BattleMessageState(Game, _stack,
-                        $"You earned {exp} experience points!", () => { }, canInput: false));
-
-                    TweenManager.Instance.After(GameSettings.ExpTweenDelay, () =>
-                    {
-                        SoundManager.PlayExp();
-
-                        float targetExp = Math.Min(
-                            _battle.PlayerPokemon.CurrentExp + exp,
-                            _battle.PlayerPokemon.ExpToLevel);
-
-                        TweenManager.Instance.Tween(GameSettings.ExpTweenDuration)
-                            .Add(v => _battle.PlayerExpBar.Value = v,
-                                 _battle.PlayerExpBar.Value, targetExp)
-                            .Finish(() =>
-                            {
-                                _stack.Pop(); // pop exp message
-
-                                _battle.PlayerPokemon.CurrentExp += exp;
-
-                                if (_battle.PlayerPokemon.CurrentExp >= _battle.PlayerPokemon.ExpToLevel)
-                                {
-                                    SoundManager.PlayLevelup();
-                                    _battle.PlayerPokemon.CurrentExp -= _battle.PlayerPokemon.ExpToLevel;
-                                    _battle.PlayerPokemon.LevelUp();
-
-                                    _stack.Push(new BattleMessageState(Game, _stack,
-                                        "Congratulations! Level Up!",
-                                        () => FadeToField()));
-                                }
-                                else
-                                {
-                                    FadeToField();
-                                }
-                            });
-                    });
-                }));
-            });
+            .Finish(OnOpponentFainted);
     }
 
-    private void FadeToField()
+    private void OnOpponentFainted()
     {
-        _stack.Push(new FadeInState(_stack, Color.White, GameSettings.FadeDuration, () =>
+        SoundManager.StopMusic();
+        SoundManager.PlayVictoryMusic();
+        _stack.Push(new BattleMessageState(Game, _stack, "Victory!", OnVictoryMessageClosed));
+    }
+
+    private void OnVictoryMessageClosed()
+    {
+        _earnedExp = _battle.OpponentPokemon.ExpReward;
+        _stack.Push(new BattleMessageState(Game, _stack,
+            $"You earned {_earnedExp} experience points!", () => { }, canInput: false));
+        TweenManager.Instance.After(GameSettings.ExpTweenDelay, StartExpTween);
+    }
+
+    private void StartExpTween()
+    {
+        SoundManager.PlayExp();
+        float targetExp = Math.Min(
+            _battle.PlayerPokemon.CurrentExp + _earnedExp,
+            _battle.PlayerPokemon.ExpToLevel);
+
+        TweenManager.Instance.Tween(GameSettings.ExpTweenDuration)
+            .Add(v => _battle.PlayerExpBar.Value = v, _battle.PlayerExpBar.Value, targetExp)
+            .Finish(OnExpTweenComplete);
+    }
+
+    private void OnExpTweenComplete()
+    {
+        _stack.Pop(); // pop exp message
+        _battle.PlayerPokemon.CurrentExp += _earnedExp;
+
+        if (_battle.PlayerPokemon.CurrentExp >= _battle.PlayerPokemon.ExpToLevel)
         {
-            SoundManager.StopMusic();
-            SoundManager.PlayFieldMusic();
-            _stack.Pop(); // pop BattleState
-            _stack.Push(new FadeOutState(_stack, Color.White, GameSettings.FadeDuration, () => { }));
-        }));
+            SoundManager.PlayLevelup();
+            _battle.PlayerPokemon.CurrentExp -= _battle.PlayerPokemon.ExpToLevel;
+            _battle.PlayerPokemon.LevelUp();
+            _stack.Push(new BattleMessageState(Game, _stack, "Congratulations! Level Up!", () => FadeToField()));
+        }
+        else
+        {
+            FadeToField();
+        }
+    }
+
+    private void FadeToField() =>
+        _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 0f, 1f, OnFadeToWhiteComplete));
+
+    private void OnFadeToWhiteComplete()
+    {
+        SoundManager.StopMusic();
+        SoundManager.PlayFieldMusic();
+        _stack.Pop(); // pop BattleState
+        _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
     }
 
     // TakeTurnState has no visuals of its own; BattleState renders beneath it.

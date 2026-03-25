@@ -49,16 +49,16 @@ public sealed class Selection
         if (GameController.MenuUp)
         {
             _currentIndex = (_currentIndex - 1 + _items.Count) % _items.Count;
-            AudioHelper.PlayBlipSafe();
+            SoundManager.PlayBlip();
         }
         else if (GameController.MenuDown)
         {
             _currentIndex = (_currentIndex + 1) % _items.Count;
-            AudioHelper.PlayBlipSafe();
+            SoundManager.PlayBlip();
         }
         else if (GameController.Confirm)
         {
-            AudioHelper.PlayBlipSafe();
+            SoundManager.PlayBlip();
             _items[_currentIndex].OnSelect?.Invoke();
         }
     }
@@ -88,11 +88,3 @@ public sealed class Selection
     }
 }
 
-/// <summary>Thin helper so SoundManager can be called without crashing if it's not loaded.</summary>
-file static class AudioHelper
-{
-    public static void PlayBlipSafe()
-    {
-        try { SoundManager.PlayBlip(); } catch { /* audio not loaded yet */ }
-    }
-}

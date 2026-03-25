@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GMDCore.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Pokemon.Entities;
 
 namespace Pokemon.Definitions;
 
@@ -45,14 +46,14 @@ public static class EntityDefinitions
     {
         return new Dictionary<string, Animation>
         {
-            ["walk-down"]  = atlas.CreateAnimation(new[] {3, 4, 5, 4},   GameSettings.WalkAnimIntervalSeconds),
-            ["walk-up"]    = atlas.CreateAnimation(new[] {39, 40, 41, 40}, GameSettings.WalkAnimIntervalSeconds),
-            ["walk-left"]  = atlas.CreateAnimation(new[] {15, 16, 17, 16}, GameSettings.WalkAnimIntervalSeconds),
-            ["walk-right"] = atlas.CreateAnimation(new[] {27, 28, 29, 28}, GameSettings.WalkAnimIntervalSeconds),
-            ["idle-down"]  = atlas.CreateAnimation(new[] {4},  GameSettings.WalkAnimIntervalSeconds),
-            ["idle-up"]    = atlas.CreateAnimation(new[] {40}, GameSettings.WalkAnimIntervalSeconds),
-            ["idle-left"]  = atlas.CreateAnimation(new[] {16}, GameSettings.WalkAnimIntervalSeconds),
-            ["idle-right"] = atlas.CreateAnimation(new[] {28}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.WalkDown]  = atlas.CreateAnimation(new[] {3, 4, 5, 4},    GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.WalkUp]    = atlas.CreateAnimation(new[] {39, 40, 41, 40}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.WalkLeft]  = atlas.CreateAnimation(new[] {15, 16, 17, 16}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.WalkRight] = atlas.CreateAnimation(new[] {27, 28, 29, 28}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.IdleDown]  = atlas.CreateAnimation(new[] {4},  GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.IdleUp]    = atlas.CreateAnimation(new[] {40}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.IdleLeft]  = atlas.CreateAnimation(new[] {16}, GameSettings.WalkAnimIntervalSeconds),
+            [AnimationKeys.IdleRight] = atlas.CreateAnimation(new[] {28}, GameSettings.WalkAnimIntervalSeconds),
         };
     }
 }

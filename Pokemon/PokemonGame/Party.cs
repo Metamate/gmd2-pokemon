@@ -8,10 +8,11 @@ namespace Pokemon.PokemonGame;
 /// </summary>
 public sealed class Party
 {
-    public List<PokemonInstance> Pokemon { get; } = new();
+    private readonly List<PokemonInstance> _pokemon = new();
+    public IReadOnlyList<PokemonInstance> Pokemon => _pokemon;
 
     public Party(IEnumerable<PokemonInstance> pokemon)
     {
-        Pokemon.AddRange(pokemon);
+        _pokemon.AddRange(pokemon);
     }
 }

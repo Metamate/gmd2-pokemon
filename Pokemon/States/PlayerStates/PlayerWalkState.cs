@@ -41,17 +41,16 @@ public sealed class PlayerWalkState : EntityWalkState
 
         // Freeze player in place (PlayerIdleState so input is re-enabled when battle ends)
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
-        Entity.ChangeAnimation($"idle-{Entity.Direction.ToKey()}");
+        Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
 
         SoundManager.PauseFieldMusic();
         SoundManager.PlayBattleMusic();
 
-        _stateStack.Push(new FadeInState(_stateStack, Color.White, GameSettings.FadeDuration,
+        _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
             () =>
             {
                 _stateStack.Push(new BattleState(_player, _stateStack));
-                _stateStack.Push(new FadeOutState(_stateStack, Color.White, GameSettings.FadeDuration,
-                    () => { }));
+                _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
             }));
 
         return true;

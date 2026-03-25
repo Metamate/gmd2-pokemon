@@ -31,7 +31,7 @@ public class Entity
     public Dictionary<string, Animation> Animations { get; } = new();
 
     // The animation currently playing
-    public string CurrentAnimationKey { get; private set; } = "idle-down";
+    public string CurrentAnimationKey { get; private set; } = AnimationKeys.IdleDown;
 
     private readonly AnimatedSprite _sprite = new();
     public EntityStateBase State { get; private set; }

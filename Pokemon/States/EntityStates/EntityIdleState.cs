@@ -13,6 +13,6 @@ public class EntityIdleState : EntityStateBase
 
     public override void Enter()
     {
-        Entity.ChangeAnimation($"idle-{Entity.Direction.ToKey()}");
+        Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
     }
 }

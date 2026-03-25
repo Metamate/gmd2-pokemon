@@ -17,7 +17,7 @@ public sealed class TweenManager
     // -------------------------------------------------------------------------
 
     /// <summary>Tweens one or more float properties over a fixed duration.</summary>
-    public sealed class TweenGroup
+    public sealed class TweenGroup : ITweenTask
     {
         private readonly float _duration;
         private float _elapsed;
@@ -37,7 +37,7 @@ public sealed class TweenManager
         /// <summary>Callback invoked once when the tween finishes.</summary>
         public TweenGroup Finish(Action callback) { _onComplete = callback; return this; }
 
-        internal void Update(float dt)
+        void ITweenTask.Update(float dt)
         {
             if (IsComplete) return;
             _elapsed += dt;
@@ -53,7 +53,7 @@ public sealed class TweenManager
     }
 
     /// <summary>Fires a callback once after a delay.</summary>
-    public sealed class DelayTask
+    public sealed class DelayTask : ITweenTask
     {
         private readonly float _delay;
         private readonly Action _callback;
@@ -66,7 +66,7 @@ public sealed class TweenManager
             _callback = callback;
         }
 
-        internal void Update(float dt)
+        void ITweenTask.Update(float dt)
         {
             if (IsComplete) return;
             _elapsed += dt;
@@ -79,7 +79,7 @@ public sealed class TweenManager
     }
 
     /// <summary>Fires a callback at a regular interval, optionally limited and with a finish callback.</summary>
-    public sealed class RepeatTask
+    public sealed class RepeatTask : ITweenTask
     {
         private readonly float  _interval;
         private readonly Action _callback;
@@ -98,7 +98,7 @@ public sealed class TweenManager
         public RepeatTask Limit(int n) { _limit = n; return this; }
         public RepeatTask Finish(Action callback) { _onFinish = callback; return this; }
 
-        internal void Update(float dt)
+        void ITweenTask.Update(float dt)
         {
             if (IsComplete) return;
             _elapsed += dt;
@@ -121,8 +121,8 @@ public sealed class TweenManager
     // Manager state
     // -------------------------------------------------------------------------
 
-    private readonly List<object> _tasks = new();
-    private readonly List<object> _toAdd = new();
+    private readonly List<ITweenTask> _tasks = new();
+    private readonly List<ITweenTask> _toAdd = new();
 
     private TweenManager() { }
 
@@ -164,24 +164,10 @@ public sealed class TweenManager
         _tasks.AddRange(_toAdd);
         _toAdd.Clear();
 
-        // Use an index-based loop so that if Clear() is called inside a callback
-        // (which sets _tasks.Count to 0), the loop terminates cleanly.
+        // Index-based loop: if Clear() is called inside a callback the loop terminates cleanly.
         for (int i = 0; i < _tasks.Count; i++)
-        {
-            switch (_tasks[i])
-            {
-                case TweenGroup  t: t.Update(dt); break;
-                case DelayTask   t: t.Update(dt); break;
-                case RepeatTask  t: t.Update(dt); break;
-            }
-        }
+            _tasks[i].Update(dt);
 
-        _tasks.RemoveAll(t => t switch
-        {
-            TweenGroup  g => g.IsComplete,
-            DelayTask   d => d.IsComplete,
-            RepeatTask  r => r.IsComplete,
-            _             => false
-        });
+        _tasks.RemoveAll(t => t.IsComplete);
     }
 }

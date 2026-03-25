@@ -26,7 +26,7 @@ public class EntityWalkState : EntityStateBase
 
     protected virtual void AttemptMove()
     {
-        Entity.ChangeAnimation($"walk-{Entity.Direction.ToKey()}");
+        Entity.ChangeAnimation(AnimationKeys.Walk(Entity.Direction));
 
         int toX = Entity.MapX;
         int toY = Entity.MapY;
@@ -43,7 +43,7 @@ public class EntityWalkState : EntityStateBase
         if (toX < 1 || toX > GameSettings.MapCols || toY < 1 || toY > GameSettings.MapRows)
         {
             Entity.ChangeState(new EntityIdleState(Entity));
-            Entity.ChangeAnimation($"idle-{Entity.Direction.ToKey()}");
+            Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
             return;
         }
 

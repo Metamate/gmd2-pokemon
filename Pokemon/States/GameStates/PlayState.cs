@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
-using Pokemon.Definitions;
 using Pokemon.Entities;
 using Pokemon.Input;
 using Pokemon.States.PlayerStates;
@@ -23,18 +22,7 @@ public sealed class PlayState : GameStateBase
 
     public override void Enter()
     {
-        var player = new Player();
-
-        player.MapX   = GameSettings.PlayerStartMapX;
-        player.MapY   = GameSettings.PlayerStartMapY;
-        player.Width  = GameSettings.TileSize;
-        player.Height = GameSettings.TileSize;
-        player.X      = (player.MapX - 1) * GameSettings.TileSize;
-        player.Y      = (player.MapY - 1) * GameSettings.TileSize - player.Height / 2f;
-
-        foreach (var (key, anim) in EntityDefinitions.CreateEntityAnimations(Game1.EntityAtlas))
-            player.Animations[key] = anim;
-
+        var player = new Player(Game1.EntityAtlas);
         _level = new Level(player, Game1.TileAtlas);
 
         player.ChangeState(new PlayerIdleState(player, _level, Game.StateStack));

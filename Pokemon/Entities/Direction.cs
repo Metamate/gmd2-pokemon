@@ -16,13 +16,4 @@ public static class DirectionExtensions
         _               => Vector2.Zero
     };
 
-    /// <summary>Animation key suffix matching the Lua entity_defs naming convention.</summary>
-    public static string ToKey(this Direction d) => d switch
-    {
-        Direction.Left  => "left",
-        Direction.Right => "right",
-        Direction.Up    => "up",
-        Direction.Down  => "down",
-        _               => "down"
-    };
 }

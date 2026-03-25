@@ -1,31 +1,35 @@
 using System;
+using GMDCore;
+using GMDCore.States;
+using GMDCore.Tweening;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using GMDCore.Tweening;
-using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
 /// <summary>
-/// Fades in a solid color overlay (transparent → opaque), then fires a callback and pops itself.
-/// Equivalent to the Lua FadeInState.
+/// Renders a solid color overlay whose opacity is tweened from
+/// <paramref name="fromOpacity"/> to <paramref name="toOpacity"/>.
+/// Pops itself and fires <paramref name="onComplete"/> when done.
+///
+/// Use fromOpacity=0, toOpacity=1 to fade in; reverse to fade out.
 /// </summary>
-public sealed class FadeInState : GameStateBase
+public sealed class FadeState : GameStateBase
 {
     private readonly StateStack _stack;
     private readonly Color      _color;
     private float               _opacity;
 
-    public FadeInState(StateStack stack, Color color, float duration, Action onComplete)
+    public FadeState(StateStack stack, Color color, float duration,
+                     float fromOpacity, float toOpacity, Action onComplete)
         : base(Game1.Current)
     {
         _stack   = stack;
         _color   = color;
-        _opacity = 0f;
+        _opacity = fromOpacity;
 
         TweenManager.Instance.Tween(duration)
-            .Add(v => _opacity = v, 0f, 1f)
+            .Add(v => _opacity = v, fromOpacity, toOpacity)
             .Finish(() =>
             {
                 _stack.Pop();
