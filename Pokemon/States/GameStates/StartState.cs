@@ -8,6 +8,7 @@ using Pokemon.PokemonGame;
 using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
+using GMDCore.Graphics;
 
 namespace Pokemon.States.GameStates;
 
@@ -23,7 +24,12 @@ public sealed class StartState : GameStateBase
     private static readonly Color TitleColor = new(24, 24, 24);
     private static readonly Color ShadowColor = new(45, 184, 45, 124);
 
-    public StartState(Core game) : base(game) { }
+    private readonly Texture2D _shadowTex;
+
+    public StartState(Core game) : base(game)
+    {
+        _shadowTex = TextureFactory.CreateEllipse(Game1.Current.GraphicsDevice, 72, 24, ShadowColor);
+    }
 
     public override void Enter()
     {
@@ -88,10 +94,9 @@ public sealed class StartState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BgColor);
 
-        spriteBatch.Draw(Game1.Pixel,
-            new Rectangle((int)(GameSettings.VirtualWidth / 2 - 72),
-                          (int)(GameSettings.VirtualHeight / 2 + 8), 144, 48),
-            ShadowColor);
+        spriteBatch.Draw(_shadowTex,
+            new Vector2(GameSettings.VirtualWidth / 2 - 72, GameSettings.VirtualHeight / 2 + 8 - 24),
+            Color.White);
 
         if (_currentSprite != null)
             spriteBatch.Draw(_currentSprite, new Vector2(_spriteX, _spriteY), Color.White);

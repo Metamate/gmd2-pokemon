@@ -9,6 +9,7 @@ using Pokemon.PokemonGame;
 using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
+using GMDCore.Graphics;
 
 namespace Pokemon.States.GameStates;
 
@@ -37,7 +38,12 @@ public sealed class BattleState : GameStateBase
     private float _playerCircleX;
     private float _opponentCircleX;
 
-    private readonly Panel _bottomPanel;
+    private readonly Panel    _bottomPanel;
+    private readonly Texture2D _shadowTex;
+
+    private const int ShadowRx = 72;
+    private const int ShadowRy = 24;
+
     private static readonly Color BattleBg    = new(214, 214, 214);
     private static readonly Color ShadowColor = new(45, 184, 45, 124);
     private static readonly Color HpColor     = new(189, 32, 32);
@@ -77,6 +83,8 @@ public sealed class BattleState : GameStateBase
 
         _bottomPanel = new Panel(0, GameSettings.VirtualHeight - 64,
                                  GameSettings.VirtualWidth, 64);
+
+        _shadowTex = TextureFactory.CreateEllipse(Game1.Current.GraphicsDevice, ShadowRx, ShadowRy, ShadowColor);
     }
 
     public override void Exit()
@@ -125,8 +133,8 @@ public sealed class BattleState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
-        DrawEllipse(spriteBatch, _opponentCircleX, 60, 72, 24, ShadowColor);
-        DrawEllipse(spriteBatch, _playerCircleX,   GameSettings.VirtualHeight - 64, 72, 24, ShadowColor);
+        spriteBatch.Draw(_shadowTex, new Vector2(_opponentCircleX - ShadowRx, 60          - ShadowRy), Color.White);
+        spriteBatch.Draw(_shadowTex, new Vector2(_playerCircleX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
 
         PlayerSprite.Draw(spriteBatch);
         OpponentSprite.Draw(spriteBatch);
@@ -153,10 +161,4 @@ public sealed class BattleState : GameStateBase
         spriteBatch.End();
     }
 
-    private static void DrawEllipse(SpriteBatch sb, float cx, float cy, float rx, float ry, Color color)
-    {
-        sb.Draw(Game1.Pixel,
-            new Rectangle((int)(cx - rx), (int)(cy - ry), (int)(rx * 2), (int)(ry * 2)),
-            color);
-    }
 }
