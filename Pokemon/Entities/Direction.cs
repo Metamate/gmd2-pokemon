@@ -6,7 +6,7 @@ public enum Direction { Down, Up, Left, Right }
 
 public static class DirectionExtensions
 {
-    /// <summary>Convert a direction to a unit movement vector.</summary>
+    // Convert a direction to a unit movement vector.
     public static Vector2 ToVector2(this Direction d) => d switch
     {
         Direction.Left  => new Vector2(-1,  0),

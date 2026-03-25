@@ -7,11 +7,9 @@ using Pokemon.States.EntityStates;
 
 namespace Pokemon.Entities;
 
-/// <summary>
-/// Base entity class for the overworld. Stores grid position, pixel position, direction,
-/// animations, and the current entity state (idle/walk).
-/// Equivalent to the Lua Entity class.
-/// </summary>
+// Base entity class for the overworld. Stores grid position, pixel position, direction,
+// animations, and the current entity state (idle/walk).
+// Equivalent to the Lua Entity class.
 public class Entity
 {
     // Grid coordinates (1-indexed, matching Lua)
@@ -38,7 +36,7 @@ public class Entity
 
     public Entity() { }
 
-    /// <summary>Change to a new entity state, calling Exit on the old and Enter on the new.</summary>
+    // Change to a new entity state, calling Exit on the old and Enter on the new.
     public void ChangeState(EntityStateBase newState)
     {
         State?.Exit();
@@ -46,7 +44,7 @@ public class Entity
         State.Enter();
     }
 
-    /// <summary>Switch the active animation by key name.</summary>
+    // Switch the active animation by key name.
     public void ChangeAnimation(string key)
     {
         if (!Animations.TryGetValue(key, out var anim)) return;

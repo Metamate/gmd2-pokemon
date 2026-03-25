@@ -10,11 +10,9 @@ using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
-/// <summary>
-/// Title screen. A random Pokemon sprite slides across the screen every 3 seconds.
-/// Press Enter/Space to start the game.
-/// Equivalent to the Lua StartState.
-/// </summary>
+// Title screen. A random Pokemon sprite slides across the screen every 3 seconds.
+// Press Enter/Space to start the game.
+// Equivalent to the Lua StartState.
 public sealed class StartState : GameStateBase
 {
     private Texture2D _currentSprite;

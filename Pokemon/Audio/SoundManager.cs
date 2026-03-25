@@ -4,10 +4,8 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Pokemon.Audio;
 
-/// <summary>
-/// Central audio manager. Music tracks are Songs played via MediaPlayer (one at a time).
-/// Short sound effects are SoundEffects.
-/// </summary>
+// Central audio manager. Music tracks are Songs played via MediaPlayer (one at a time).
+// Short sound effects are SoundEffects.
 public static class SoundManager
 {
     private static Song _fieldMusic;
@@ -48,7 +46,7 @@ public static class SoundManager
         MediaPlayer.Play(_fieldMusic);
     }
 
-    /// <summary>Pause the field music so it can be resumed later (conceptually; MediaPlayer resumes from start).</summary>
+    // Pause the field music so it can be resumed later (conceptually; MediaPlayer resumes from start).
     public static void PauseFieldMusic() => MediaPlayer.Pause();
 
     public static void PlayBattleMusic()

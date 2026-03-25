@@ -10,11 +10,9 @@ using GMDCore.States;
 
 namespace Pokemon.States.PlayerStates;
 
-/// <summary>
-/// Moves the player one tile, then checks whether to continue walking.
-/// On entering a tall-grass tile there is a 1-in-10 chance of a random encounter.
-/// Equivalent to the Lua PlayerWalkState.
-/// </summary>
+// Moves the player one tile, then checks whether to continue walking.
+// On entering a tall-grass tile there is a 1-in-10 chance of a random encounter.
+// Equivalent to the Lua PlayerWalkState.
 public sealed class PlayerWalkState : EntityWalkState
 {
     private readonly Player     _player;

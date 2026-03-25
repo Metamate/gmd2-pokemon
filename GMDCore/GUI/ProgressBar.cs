@@ -3,9 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GMDCore.GUI;
 
-/// <summary>
-/// A simple filled progress bar with a black outline.
-/// </summary>
+// A simple filled progress bar with a black outline.
 public sealed class ProgressBar
 {
     public float X      { get; set; }

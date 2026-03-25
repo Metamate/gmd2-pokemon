@@ -4,10 +4,8 @@ using Pokemon.PokemonGame;
 
 namespace Pokemon.Entities;
 
-/// <summary>
-/// The player-controlled entity. Extends Entity by adding a Pokemon Party
-/// and handling its own initialization (start position, size, animations).
-/// </summary>
+// The player-controlled entity. Extends Entity by adding a Pokemon Party
+// and handling its own initialization (start position, size, animations).
 public sealed class Player : Entity
 {
     public Party Party { get; }

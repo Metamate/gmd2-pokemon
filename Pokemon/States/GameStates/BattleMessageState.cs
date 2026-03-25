@@ -7,11 +7,9 @@ using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
-/// <summary>
-/// Shows a battle message textbox at the bottom of the screen.
-/// When canInput is false the textbox stays visible but ignores input (used during animations).
-/// Equivalent to the Lua BattleMessageState.
-/// </summary>
+// Shows a battle message textbox at the bottom of the screen.
+// When canInput is false the textbox stays visible but ignores input (used during animations).
+// Equivalent to the Lua BattleMessageState.
 public sealed class BattleMessageState : GameStateBase
 {
     private readonly StateStack _stack;

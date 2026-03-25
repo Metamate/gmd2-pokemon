@@ -5,11 +5,9 @@ using Pokemon.World;
 
 namespace Pokemon.States.EntityStates;
 
-/// <summary>
-/// Moves the entity one tile in its current direction via a smooth position tween,
-/// then decides whether to continue walking or return to idle.
-/// Equivalent to the Lua EntityWalkState.
-/// </summary>
+// Moves the entity one tile in its current direction via a smooth position tween,
+// then decides whether to continue walking or return to idle.
+// Equivalent to the Lua EntityWalkState.
 public class EntityWalkState : EntityStateBase
 {
     protected readonly Level Level;

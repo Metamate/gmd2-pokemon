@@ -3,9 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GMDCore.GUI;
 
-/// <summary>
-/// A bordered panel background (white outer, dark inner rectangle).
-/// </summary>
+// A bordered panel background (white outer, dark inner rectangle).
 public sealed class Panel
 {
     public float X      { get; set; }

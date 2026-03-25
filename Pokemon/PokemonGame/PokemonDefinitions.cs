@@ -2,9 +2,7 @@ using System.Collections.Generic;
 
 namespace Pokemon.PokemonGame;
 
-/// <summary>
-/// Static data definition for a Pokemon species, equivalent to Lua's pokemon_defs.lua entries.
-/// </summary>
+// Static data definition for a Pokemon species, equivalent to Lua's pokemon_defs.lua entries.
 public sealed class PokemonSpecies
 {
     public string Name              { get; init; }
@@ -24,9 +22,7 @@ public sealed class PokemonSpecies
     public int SpeedIV   { get; init; }
 }
 
-/// <summary>
-/// Registry of all Pokemon species, equivalent to POKEMON_DEFS / POKEMON_IDS in Lua.
-/// </summary>
+// Registry of all Pokemon species, equivalent to POKEMON_DEFS / POKEMON_IDS in Lua.
 public static class PokemonDefinitions
 {
     public static readonly IReadOnlyList<PokemonSpecies> All = new List<PokemonSpecies>
@@ -73,7 +69,7 @@ public static class PokemonDefinitions
         }
     };
 
-    /// <summary>Returns a random species definition.</summary>
+    // Returns a random species definition.
     public static PokemonSpecies GetRandom()
         => All[System.Random.Shared.Next(All.Count)];
 }

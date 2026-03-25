@@ -3,10 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GMDCore.States;
 
-/// <summary>
-/// Base class for all game states managed by the StateStack.
-/// Each state owns its own SpriteBatch.Begin/End calls inside Draw().
-/// </summary>
+// Base class for all game states managed by the StateStack.
+// Each state owns its own SpriteBatch.Begin/End calls inside Draw().
 public abstract class GameStateBase
 {
     protected readonly Core Game;

@@ -7,12 +7,10 @@ using GMDCore.GUI;
 
 namespace Pokemon.GUI;
 
-/// <summary>
-/// Displays a text message inside a Panel, one page (up to 3 lines) at a time.
-/// The player presses Confirm to advance pages. When the last page is dismissed
-/// the textbox marks itself as closed.
-/// Equivalent to the Lua Textbox class.
-/// </summary>
+// Displays a text message inside a Panel, one page (up to 3 lines) at a time.
+// The player presses Confirm to advance pages. When the last page is dismissed
+// the textbox marks itself as closed.
+// Equivalent to the Lua Textbox class.
 public sealed class Textbox
 {
     private readonly Panel _panel;

@@ -7,10 +7,8 @@ using Pokemon.Entities;
 
 namespace Pokemon.World;
 
-/// <summary>
-/// The overworld level: two tile layers (base grass + tall grass) and the player entity.
-/// Equivalent to the Lua Level class.
-/// </summary>
+// The overworld level: two tile layers (base grass + tall grass) and the player entity.
+// Equivalent to the Lua Level class.
 public sealed class Level
 {
     private const int LevelWidth  = 50;

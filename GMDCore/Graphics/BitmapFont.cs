@@ -3,15 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GMDCore.Graphics;
 
-/// <summary>
-/// A pixel-perfect bitmap font backed by a pre-generated glyph atlas.
-/// The atlas is rendered without anti-aliasing (1-bit per pixel) so glyphs stay
-/// crisp when the render-target is upscaled with point filtering.
-///
-/// Atlas layout: printable ASCII 32–126 (95 chars), 16 columns per row,
-/// each character occupies a cell of CellW × CellH pixels.
-/// Per-character advance widths are stored separately (variable-width font).
-/// </summary>
+// A pixel-perfect bitmap font backed by a pre-generated glyph atlas.
+// The atlas is rendered without anti-aliasing (1-bit per pixel) so glyphs stay
+// crisp when the render-target is upscaled with point filtering.
+// 
+// Atlas layout: printable ASCII 32–126 (95 chars), 16 columns per row,
+// each character occupies a cell of CellW × CellH pixels.
+// Per-character advance widths are stored separately (variable-width font).
 public sealed class BitmapFont
 {
     private readonly Texture2D _atlas;
@@ -41,7 +39,7 @@ public sealed class BitmapFont
         _advances = advances;
     }
 
-    /// <summary>Draw a string at the given position.</summary>
+    // Draw a string at the given position.
     public void Draw(SpriteBatch spriteBatch, string text, Vector2 position, Color color)
     {
         float x = position.X, startX = position.X, y = position.Y;
@@ -58,7 +56,7 @@ public sealed class BitmapFont
         }
     }
 
-    /// <summary>Measure the pixel dimensions of a string.</summary>
+    // Measure the pixel dimensions of a string.
     public Vector2 MeasureString(string text)
     {
         float lineW = 0f, maxW = 0f, h = _cellH;

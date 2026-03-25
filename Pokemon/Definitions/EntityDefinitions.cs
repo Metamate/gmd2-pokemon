@@ -7,11 +7,9 @@ using Pokemon.Entities;
 
 namespace Pokemon.Definitions;
 
-/// <summary>
-/// Loads and provides Pokemon battle sprite textures.
-/// Entity walk/idle animations are built from the shared EntityAtlas at runtime.
-/// Equivalent to the Lua entity_defs.lua + global gTextures table for pokemon sprites.
-/// </summary>
+// Loads and provides Pokemon battle sprite textures.
+// Entity walk/idle animations are built from the shared EntityAtlas at runtime.
+// Equivalent to the Lua entity_defs.lua + global gTextures table for pokemon sprites.
 public static class EntityDefinitions
 {
     private static readonly Dictionary<string, Texture2D> _pokemonTextures = new();
@@ -31,17 +29,15 @@ public static class EntityDefinitions
             _pokemonTextures[key] = content.Load<Texture2D>(key);
     }
 
-    /// <summary>Retrieve a pre-loaded Pokemon battle sprite by its content path key.</summary>
+    // Retrieve a pre-loaded Pokemon battle sprite by its content path key.
     public static Texture2D GetPokemonSprite(string key)
         => _pokemonTextures.TryGetValue(key, out var tex) ? tex : null;
 
     // ---- Entity walk/idle animations ----
     // Frames are 0-indexed into the entities atlas (Lua frames are 1-indexed; subtract 1).
 
-    /// <summary>
-    /// Build the standard walk + idle animation set from the shared entity atlas.
-    /// All player and NPC entities share the same sprite sheet.
-    /// </summary>
+    // Build the standard walk + idle animation set from the shared entity atlas.
+    // All player and NPC entities share the same sprite sheet.
     public static Dictionary<string, Animation> CreateEntityAnimations(TextureAtlas atlas)
     {
         return new Dictionary<string, Animation>

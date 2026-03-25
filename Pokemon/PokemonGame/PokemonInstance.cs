@@ -2,10 +2,8 @@ using System;
 
 namespace Pokemon.PokemonGame;
 
-/// <summary>
-/// A runtime Pokemon instance with stats calculated from its species definition and level.
-/// Equivalent to the Lua Pokemon class.
-/// </summary>
+// A runtime Pokemon instance with stats calculated from its species definition and level.
+// Equivalent to the Lua Pokemon class.
 public sealed class PokemonInstance
 {
     public string Name              { get; }
@@ -56,10 +54,8 @@ public sealed class PokemonInstance
         CurrentHp = Hp;
     }
 
-    /// <summary>
-    /// Rolls stats for one level. Each stat's IV (1–5) is tested 3 times against a d6:
-    /// if the roll is ≤ IV the stat increases by 1. Returns the four increases.
-    /// </summary>
+    // Rolls stats for one level. Each stat's IV (1–5) is tested 3 times against a d6:
+    // if the roll is ≤ IV the stat increases by 1. Returns the four increases.
     public (int hpGain, int atkGain, int defGain, int spdGain) RollStatsLevelUp()
     {
         int hpGain = 0, atkGain = 0, defGain = 0, spdGain = 0;
@@ -73,10 +69,8 @@ public sealed class PokemonInstance
         return (hpGain, atkGain, defGain, spdGain);
     }
 
-    /// <summary>
-    /// Advance one level: increment level, recalculate ExpToLevel, roll stats.
-    /// Returns the stat gains for display purposes.
-    /// </summary>
+    // Advance one level: increment level, recalculate ExpToLevel, roll stats.
+    // Returns the stat gains for display purposes.
     public (int hpGain, int atkGain, int defGain, int spdGain) LevelUp()
     {
         Level++;
@@ -84,6 +78,6 @@ public sealed class PokemonInstance
         return RollStatsLevelUp();
     }
 
-    /// <summary>Exp reward earned when this Pokemon is defeated.</summary>
+    // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;
 }

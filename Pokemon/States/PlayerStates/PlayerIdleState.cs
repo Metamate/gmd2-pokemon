@@ -8,10 +8,8 @@ using GMDCore.States;
 
 namespace Pokemon.States.PlayerStates;
 
-/// <summary>
-/// The player stands still. Reads directional input and transitions to a walk state.
-/// Equivalent to the Lua PlayerIdleState.
-/// </summary>
+// The player stands still. Reads directional input and transitions to a walk state.
+// Equivalent to the Lua PlayerIdleState.
 public sealed class PlayerIdleState : EntityIdleState
 {
     private readonly Level      _level;

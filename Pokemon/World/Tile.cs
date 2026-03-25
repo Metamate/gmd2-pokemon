@@ -4,17 +4,15 @@ using GMDCore.Graphics;
 
 namespace Pokemon.World;
 
-/// <summary>
-/// A single tile on the map. Stores its 1-indexed grid position and tile ID.
-/// Equivalent to the Lua Tile class.
-/// </summary>
+// A single tile on the map. Stores its 1-indexed grid position and tile ID.
+// Equivalent to the Lua Tile class.
 public sealed class Tile
 {
     // 1-indexed grid coordinates (matching Lua convention)
     public int GridX { get; }
     public int GridY { get; }
 
-    /// <summary>1-indexed tile ID used to look up the sprite from the tilesheet atlas.</summary>
+    // 1-indexed tile ID used to look up the sprite from the tilesheet atlas.
     public int Id { get; }
 
     public Tile(int gridX, int gridY, int id)

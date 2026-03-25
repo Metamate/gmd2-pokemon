@@ -3,10 +3,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Pokemon.Input;
 
-/// <summary>
-/// Abstracts raw keyboard state into named game actions.
-/// All properties read from the shared GMDCore InputManager.Keyboard.
-/// </summary>
+// Abstracts raw keyboard state into named game actions.
+// All properties read from the shared GMDCore InputManager.Keyboard.
 public static class GameController
 {
     // Movement (held)

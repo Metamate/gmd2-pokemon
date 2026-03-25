@@ -1,9 +1,7 @@
 namespace Pokemon.Entities;
 
-/// <summary>
-/// Compile-time constants for entity animation keys.
-/// Centralises the naming convention so typos become build errors rather than silent bugs.
-/// </summary>
+// Compile-time constants for entity animation keys.
+// Centralises the naming convention so typos become build errors rather than silent bugs.
 public static class AnimationKeys
 {
     public const string WalkDown  = "walk-down";
@@ -15,7 +13,7 @@ public static class AnimationKeys
     public const string IdleLeft  = "idle-left";
     public const string IdleRight = "idle-right";
 
-    /// <summary>Returns the walk animation key for the given direction.</summary>
+    // Returns the walk animation key for the given direction.
     public static string Walk(Direction d) => d switch
     {
         Direction.Up    => WalkUp,
@@ -25,7 +23,7 @@ public static class AnimationKeys
         _               => WalkDown
     };
 
-    /// <summary>Returns the idle animation key for the given direction.</summary>
+    // Returns the idle animation key for the given direction.
     public static string Idle(Direction d) => d switch
     {
         Direction.Up    => IdleUp,

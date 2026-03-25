@@ -7,13 +7,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Pokemon.States.GameStates;
 
-/// <summary>
-/// Renders a solid color overlay whose opacity is tweened from
-/// <paramref name="fromOpacity"/> to <paramref name="toOpacity"/>.
-/// Pops itself and fires <paramref name="onComplete"/> when done.
-///
-/// Use fromOpacity=0, toOpacity=1 to fade in; reverse to fade out.
-/// </summary>
+// Renders a solid color overlay whose opacity is tweened from
+// fromOpacity to toOpacity.
+// Pops itself and fires onComplete when done.
+// 
+// Use fromOpacity=0, toOpacity=1 to fade in; reverse to fade out.
 public sealed class FadeState : GameStateBase
 {
     private readonly StateStack _stack;
