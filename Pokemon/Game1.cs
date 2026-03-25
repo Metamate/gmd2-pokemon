@@ -33,7 +33,7 @@ public sealed class Game1 : Core
     private RenderTarget2D _renderTarget;
 
     public Game1()
-        : base("50-Mon",
+        : base("VIAMon",
                GameSettings.WindowWidth,  GameSettings.WindowHeight,
                GameSettings.VirtualWidth, GameSettings.VirtualHeight)
     {

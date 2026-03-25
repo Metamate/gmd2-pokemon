@@ -36,7 +36,7 @@ public sealed class StartState : GameStateBase
         SoundManager.PlayIntroMusic();
         PickRandomSprite();
         _spriteX = GameSettings.VirtualWidth / 2f - 32f;
-        _spriteY = GameSettings.VirtualHeight / 2f - 16f;
+        _spriteY = GameSettings.VirtualHeight / 2f - 36f;
 
         // Cycle to a new random pokemon sprite every 3 seconds
         TweenManager.Instance.Every(3f, CycleSprite);
@@ -56,7 +56,7 @@ public sealed class StartState : GameStateBase
             {
                 PickRandomSprite();
                 _spriteX = GameSettings.VirtualWidth;
-                _spriteY = GameSettings.VirtualHeight / 2f - 16f;
+                _spriteY = GameSettings.VirtualHeight / 2f - 36f;
 
                 TweenManager.Instance.Tween(0.2f)
                     .Add(v => _spriteX = v, _spriteX, GameSettings.VirtualWidth / 2f - 32f);
@@ -79,7 +79,7 @@ public sealed class StartState : GameStateBase
                     Game.StateStack.Pop(); // pop StartState
                     Game.StateStack.Push(new PlayState(Game));
                     Game.StateStack.Push(new DialogueState(Game, Game.StateStack,
-                        "Welcome to the world of 50Mon! Walk in the tall grass to fight monsters. " +
+                        "Welcome to the world of VIAMon! Walk in the tall grass to fight monsters. " +
                         "Press P to heal. Press Enter or Space to dismiss messages."));
                     Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
                 }));
@@ -95,21 +95,21 @@ public sealed class StartState : GameStateBase
             BgColor);
 
         spriteBatch.Draw(_shadowTex,
-            new Vector2(GameSettings.VirtualWidth / 2 - 72, GameSettings.VirtualHeight / 2 + 8 - 24),
+            new Vector2(GameSettings.VirtualWidth / 2f - 72, GameSettings.VirtualHeight / 2f + 4),
             Color.White);
 
         if (_currentSprite != null)
             spriteBatch.Draw(_currentSprite, new Vector2(_spriteX, _spriteY), Color.White);
 
-        var titleSize    = Game1.LargeFont.MeasureString("50-Mon!");
-        var subtitleSize = Game1.SmallFont.MeasureString("Press Enter");
+        var titleSize    = Game1.LargeFont.MeasureString("VIAMon!");
+        var subtitleSize = Game1.MediumFont.MeasureString("Press Enter");
 
-        Game1.LargeFont.Draw(spriteBatch, "50-Mon!",
+        Game1.LargeFont.Draw(spriteBatch, "VIAMon!",
             new Vector2(GameSettings.VirtualWidth / 2f - titleSize.X / 2f,
                         GameSettings.VirtualHeight / 2f - 72f),
             TitleColor);
 
-        Game1.SmallFont.Draw(spriteBatch, "Press Enter",
+        Game1.MediumFont.Draw(spriteBatch, "Press Enter",
             new Vector2(GameSettings.VirtualWidth / 2f - subtitleSize.X / 2f,
                         GameSettings.VirtualHeight / 2f + 68f),
             TitleColor);
