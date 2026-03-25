@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 
 namespace GMDCore.GUI;
 
@@ -21,17 +22,17 @@ public sealed class Panel
 
     public void Toggle() => Visible = !Visible;
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    public void Draw(SpriteBatch spriteBatch)
     {
         if (!Visible) return;
 
         // Outer white border
-        spriteBatch.Draw(pixel,
+        spriteBatch.Draw(Core.Pixel,
             new Rectangle((int)X, (int)Y, (int)Width, (int)Height),
             Color.White);
 
         // Inner dark fill
-        spriteBatch.Draw(pixel,
+        spriteBatch.Draw(Core.Pixel,
             new Rectangle((int)X + 2, (int)Y + 2, (int)Width - 4, (int)Height - 4),
             InnerColor);
     }

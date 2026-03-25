@@ -18,9 +18,6 @@ public sealed class Game1 : Core
 
     public new Matrix ScreenScaleMatrix => base.ScreenScaleMatrix;
 
-    // Pixel-white 1×1 texture used by Panel, ProgressBar, and fade overlays.
-    public static Texture2D Pixel { get; private set; }
-
     // Three font sizes (pixel-perfect bitmap fonts, no AA).
     public static BitmapFont SmallFont  { get; private set; }
     public static BitmapFont MediumFont { get; private set; }
@@ -51,10 +48,6 @@ public sealed class Game1 : Core
     {
         base.LoadContent();
 
-        // 1×1 white pixel
-        Pixel = new Texture2D(GraphicsDevice, 1, 1);
-        Pixel.SetData(new[] { Color.White });
-
         SmallFont  = BitmapFont.CreateSmall(Content.Load<Texture2D>("fonts/small_atlas"));
         MediumFont = BitmapFont.CreateMedium(Content.Load<Texture2D>("fonts/medium_atlas"));
         LargeFont  = BitmapFont.CreateLarge(Content.Load<Texture2D>("fonts/large_atlas"));
@@ -65,9 +58,9 @@ public sealed class Game1 : Core
 
         _renderTarget = new RenderTarget2D(GraphicsDevice, GameSettings.VirtualWidth, GameSettings.VirtualHeight);
 
-        // Species data must load before EntityDefinitions (sprite paths are derived from it)
+        // Species data must load before ContentLoader (sprite paths are derived from it)
         PokemonDefinitions.LoadContent(Content);
-        EntityDefinitions.LoadContent(Content);
+        ContentLoader.LoadContent(Content);
 
         SoundManager.LoadContent(Content);
 

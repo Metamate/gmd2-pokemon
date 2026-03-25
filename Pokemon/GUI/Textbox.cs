@@ -61,9 +61,9 @@ public sealed class Textbox
             ShowNextPage();
     }
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    public void Draw(SpriteBatch spriteBatch)
     {
-        _panel.Draw(spriteBatch, pixel);
+        _panel.Draw(spriteBatch);
 
         for (int i = 0; i < _displayLines.Count; i++)
         {

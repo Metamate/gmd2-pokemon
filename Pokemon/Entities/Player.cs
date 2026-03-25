@@ -19,7 +19,7 @@ public sealed class Player : Entity
         X      = MapX * GameSettings.TileSize;
         Y      = MapY * GameSettings.TileSize - Height / 2f;
 
-        foreach (var (key, anim) in EntityDefinitions.CreateEntityAnimations(entityAtlas))
+        foreach (var (key, anim) in ContentLoader.CreateEntityAnimations(entityAtlas))
             Animations[key] = anim;
 
         Party = new Party(new[]

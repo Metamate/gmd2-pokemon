@@ -45,7 +45,7 @@ public sealed class StartState : GameStateBase
     private void PickRandomSprite()
     {
         var species = PokemonDefinitions.GetRandom();
-        _currentSprite = EntityDefinitions.GetPokemonSprite(species.BattleSpriteFront);
+        _currentSprite = ContentLoader.GetPokemonSprite(species.BattleSpriteFront);
     }
 
     private void CycleSprite()
@@ -90,7 +90,7 @@ public sealed class StartState : GameStateBase
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        spriteBatch.Draw(Game1.Pixel,
+        spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BgColor);
 

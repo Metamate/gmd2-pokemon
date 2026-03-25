@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using GMDCore.Graphics;
 using GMDCore.GUI;
@@ -21,9 +20,9 @@ public sealed class Menu
 
     public void Update() => _selection.Update();
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    public void Draw(SpriteBatch spriteBatch)
     {
-        _panel.Draw(spriteBatch, pixel);
+        _panel.Draw(spriteBatch);
         _selection.Draw(spriteBatch);
     }
 }

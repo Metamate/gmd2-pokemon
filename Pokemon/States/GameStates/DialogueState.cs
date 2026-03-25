@@ -37,7 +37,7 @@ public sealed class DialogueState : GameStateBase
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _textbox.Draw(spriteBatch, Game1.Pixel);
+        _textbox.Draw(spriteBatch);
         spriteBatch.End();
     }
 }

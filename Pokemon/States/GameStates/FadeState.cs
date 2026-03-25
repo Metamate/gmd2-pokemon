@@ -38,7 +38,7 @@ public sealed class FadeState : GameStateBase
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        spriteBatch.Draw(Game1.Pixel,
+        spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             _color * _opacity);
         spriteBatch.End();

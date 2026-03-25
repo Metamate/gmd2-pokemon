@@ -11,7 +11,7 @@ using Pokemon.Mons;
 namespace Pokemon.Definitions;
 
 // Loads Pokemon battle sprites and entity animations from data files.
-public static class EntityDefinitions
+public static class ContentLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

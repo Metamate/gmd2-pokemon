@@ -44,7 +44,7 @@ public sealed class BattleMessageState : GameStateBase
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _textbox.Draw(spriteBatch, Game1.Pixel);
+        _textbox.Draw(spriteBatch);
         spriteBatch.End();
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 
 namespace GMDCore.GUI;
 
@@ -23,26 +24,26 @@ public sealed class ProgressBar
         Max      = max;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
+    public void Draw(SpriteBatch spriteBatch)
     {
         float fillWidth = Max > 0 ? (Value / Max) * Width : 0;
 
         if (fillWidth > 0)
         {
-            spriteBatch.Draw(pixel,
+            spriteBatch.Draw(Core.Pixel,
                 new Rectangle((int)X, (int)Y, (int)fillWidth, (int)Height),
                 BarColor);
         }
 
-        DrawOutline(spriteBatch, pixel);
+        DrawOutline(spriteBatch);
     }
 
-    private void DrawOutline(SpriteBatch spriteBatch, Texture2D pixel)
+    private void DrawOutline(SpriteBatch spriteBatch)
     {
         int x = (int)X, y = (int)Y, w = (int)Width, h = (int)Height;
-        spriteBatch.Draw(pixel, new Rectangle(x,         y,         w, 1), Color.Black); // top
-        spriteBatch.Draw(pixel, new Rectangle(x,         y + h - 1, w, 1), Color.Black); // bottom
-        spriteBatch.Draw(pixel, new Rectangle(x,         y,         1, h), Color.Black); // left
-        spriteBatch.Draw(pixel, new Rectangle(x + w - 1, y,         1, h), Color.Black); // right
+        spriteBatch.Draw(Core.Pixel, new Rectangle(x,         y,         w, 1), Color.Black); // top
+        spriteBatch.Draw(Core.Pixel, new Rectangle(x,         y + h - 1, w, 1), Color.Black); // bottom
+        spriteBatch.Draw(Core.Pixel, new Rectangle(x,         y,         1, h), Color.Black); // left
+        spriteBatch.Draw(Core.Pixel, new Rectangle(x + w - 1, y,         1, h), Color.Black); // right
     }
 }

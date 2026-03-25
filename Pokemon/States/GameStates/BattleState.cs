@@ -60,8 +60,8 @@ public sealed class BattleState : GameStateBase
         OpponentPokemon = WildOpponent.Party.Pokemon[0];
 
         // Battle sprites start off-screen
-        var playerTex   = EntityDefinitions.GetPokemonSprite(PlayerPokemon.BattleSpriteBack);
-        var opponentTex = EntityDefinitions.GetPokemonSprite(OpponentPokemon.BattleSpriteFront);
+        var playerTex   = ContentLoader.GetPokemonSprite(PlayerPokemon.BattleSpriteBack);
+        var opponentTex = ContentLoader.GetPokemonSprite(OpponentPokemon.BattleSpriteFront);
 
         PlayerSprite   = new BattleSprite(playerTex,  -64f, GameSettings.VirtualHeight - 128f);
         OpponentSprite = new BattleSprite(opponentTex, GameSettings.VirtualWidth, 8f);
@@ -129,7 +129,7 @@ public sealed class BattleState : GameStateBase
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        spriteBatch.Draw(Game1.Pixel,
+        spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
@@ -141,9 +141,9 @@ public sealed class BattleState : GameStateBase
 
         if (RenderHealthBars)
         {
-            PlayerHealthBar.Draw(spriteBatch, Game1.Pixel);
-            OpponentHealthBar.Draw(spriteBatch, Game1.Pixel);
-            PlayerExpBar.Draw(spriteBatch, Game1.Pixel);
+            PlayerHealthBar.Draw(spriteBatch);
+            OpponentHealthBar.Draw(spriteBatch);
+            PlayerExpBar.Draw(spriteBatch);
 
             Game1.SmallFont.Draw(spriteBatch,
                 $"LV {PlayerPokemon.Level}",
@@ -156,7 +156,7 @@ public sealed class BattleState : GameStateBase
                 Color.Black);
         }
 
-        _bottomPanel.Draw(spriteBatch, Game1.Pixel);
+        _bottomPanel.Draw(spriteBatch);
 
         spriteBatch.End();
     }

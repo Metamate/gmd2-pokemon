@@ -17,6 +17,9 @@ public class Core : Game
     public static InputManager Input { get; set; } = new();
     public StateStack StateStack { get; protected set; }
 
+    // 1×1 white pixel texture for drawing solid-color rectangles.
+    public static Texture2D Pixel { get; private set; }
+
     public Core(string title, int windowWidth, int windowHeight, int virtualWidth, int virtualHeight)
     {
         _virtualWidth = virtualWidth;
@@ -36,6 +39,8 @@ public class Core : Game
     protected override void Initialize()
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
+        Pixel = new Texture2D(GraphicsDevice, 1, 1);
+        Pixel.SetData(new[] { Color.White });
         UpdateScreenScaleMatrix();
         base.Initialize();
     }

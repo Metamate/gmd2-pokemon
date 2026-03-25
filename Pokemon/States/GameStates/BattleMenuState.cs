@@ -63,7 +63,7 @@ public sealed class BattleMenuState : GameStateBase
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _menu.Draw(spriteBatch, Game1.Pixel);
+        _menu.Draw(spriteBatch);
         spriteBatch.End();
     }
 }
