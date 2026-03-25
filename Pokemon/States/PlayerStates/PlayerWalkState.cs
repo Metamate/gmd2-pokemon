@@ -30,11 +30,15 @@ public sealed class PlayerWalkState : EntityWalkState
         AttemptMove();
     }
 
+    // Returns true 1-in-EncounterChance times.
+    private static bool RollEncounter()
+        => System.Random.Shared.Next(GameSettings.EncounterChance) == 0;
+
     private bool CheckForEncounter()
     {
-        var tile = Level.GrassLayer.GetTile(_player.MapX, _player.MapY);
-        if (tile.Id != GameSettings.TileTallGrass) return false;
-        if (System.Random.Shared.Next(GameSettings.EncounterChance) != 0) return false;
+        int tileId = Level.GrassLayer.GetTile(_player.MapX, _player.MapY);
+        if (tileId != GameSettings.TileTallGrass) return false;
+        if (!RollEncounter()) return false;
 
         // Freeze player in place (PlayerIdleState so input is re-enabled when battle ends)
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));

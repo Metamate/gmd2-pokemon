@@ -32,8 +32,6 @@ public class Entity
     private readonly AnimatedSprite _sprite = new();
     public EntityStateBase State { get; private set; }
 
-    public Entity() { }
-
     // Change to a new entity state, calling Exit on the old and Enter on the new.
     public void ChangeState(EntityStateBase newState)
     {

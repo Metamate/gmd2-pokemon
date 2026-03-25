@@ -25,8 +25,9 @@ public sealed class StateStack
     public void Pop()
     {
         if (_states.Count == 0) return;
-        var top = _states[^1];
-        _states.RemoveAt(_states.Count - 1);
+        int last = _states.Count - 1;
+        var top  = _states[last];
+        _states.RemoveAt(last);
         top.Exit();
     }
 

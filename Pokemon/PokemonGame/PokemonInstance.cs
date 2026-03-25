@@ -44,7 +44,7 @@ public sealed class PokemonInstance
 
         Level      = level;
         CurrentExp = 0;
-        ExpToLevel = (int)(level * level * 5 * 0.75f);
+        ExpToLevel = CalcExpToLevel(level);
 
         // Apply level-up stat growth for each level reached
         for (int i = 0; i < level; i++)
@@ -73,9 +73,12 @@ public sealed class PokemonInstance
     public (int hpGain, int atkGain, int defGain, int spdGain) LevelUp()
     {
         Level++;
-        ExpToLevel = (int)(Level * Level * 5 * 0.75f);
+        ExpToLevel = CalcExpToLevel(Level);
         return RollStatsLevelUp();
     }
+
+    // Exp required to reach the next level from level n.
+    private static int CalcExpToLevel(int level) => (int)(level * level * 5 * 0.75f);
 
     // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;

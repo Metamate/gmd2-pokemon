@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using GMDCore.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -36,12 +35,10 @@ public sealed class Level
             for (int x = 0; x < LevelWidth; x++)
             {
                 int baseId = GameSettings.TileGrass[rng.Next(GameSettings.TileGrass.Length)];
-                BaseLayer.SetTile(x, y, new Tile(x, y, baseId));
+                BaseLayer.SetTile(x, y, baseId);
 
-                int grassId = y >= GameSettings.TallGrassStartRow
-                    ? GameSettings.TileTallGrass
-                    : GameSettings.TileEmpty;
-                GrassLayer.SetTile(x, y, new Tile(x, y, grassId));
+                int grassId = y >= GameSettings.TallGrassStartRow ? GameSettings.TileTallGrass : 0;
+                GrassLayer.SetTile(x, y, grassId);
             }
         }
     }
@@ -53,8 +50,8 @@ public sealed class Level
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        BaseLayer.Draw(spriteBatch, _tileAtlas);
-        GrassLayer.Draw(spriteBatch, _tileAtlas);
+        BaseLayer.Draw(spriteBatch, _tileAtlas, GameSettings.TileSize);
+        GrassLayer.Draw(spriteBatch, _tileAtlas, GameSettings.TileSize);
         Player.Draw(spriteBatch);
     }
 }
