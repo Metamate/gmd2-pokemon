@@ -1,11 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Battle;
 using GMDCore.GUI;
 using Pokemon.Mons;
-using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
 
@@ -87,27 +86,27 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Push(new BattleMessageState(Game, _stack,
             $"{attacker.Name} attacks {defender.Name}!", () => { }, canInput: false));
 
-        TweenManager.Instance.After(GameSettings.AttackPauseDuration, () =>
+        Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
         {
-            SoundManager.PlayPowerup();
+            Locator.Audio.PlayPowerup();
 
             // Lunge toward the opponent, then spring back
             float originX = attackerSprite.X;
             float nudge   = attackerSprite == _battle.PlayerSprite
                             ? GameSettings.TackleNudge : -GameSettings.TackleNudge;
 
-            TweenManager.Instance.Tween(GameSettings.TackleDuration)
+            Locator.Tweens.Tween(GameSettings.TackleDuration)
                 .Add(v => attackerSprite.X = v, originX, originX + nudge)
                 .Finish(() =>
                 {
-                    SoundManager.PlayHit();
+                    Locator.Audio.PlayHit();
 
-                    TweenManager.Instance.Tween(GameSettings.TackleDuration)
+                    Locator.Tweens.Tween(GameSettings.TackleDuration)
                         .Add(v => attackerSprite.X = v, originX + nudge, originX)
                         .Finish(() =>
                         {
                             // Defender blinks (original Pokemon hide/show style)
-                            TweenManager.Instance.Every(GameSettings.AttackBlinkInterval,
+                            Locator.Tweens.Every(GameSettings.AttackBlinkInterval,
                                 () => defenderSprite.Blinking = !defenderSprite.Blinking)
                             .Limit(GameSettings.AttackBlinkCount)
                             .Finish(() =>
@@ -116,7 +115,7 @@ public sealed class TakeTurnState : GameStateBase
                                 int dmg = attacker.CalcDamageTo(defender);
                                 float targetHp = Math.Max(0, defender.CurrentHp - dmg);
 
-                                TweenManager.Instance.Tween(GameSettings.HpTweenDuration)
+                                Locator.Tweens.Tween(GameSettings.HpTweenDuration)
                                     .Add(v => defenderBar.Value = v, defenderBar.Value, targetHp)
                                     .Finish(() =>
                                     {
@@ -142,7 +141,7 @@ public sealed class TakeTurnState : GameStateBase
 
     private void HandleFaint()
     {
-        TweenManager.Instance.Tween(GameSettings.FaintTweenDuration)
+        Locator.Tweens.Tween(GameSettings.FaintTweenDuration)
             .Add(v => _battle.PlayerSprite.Y = v, _battle.PlayerSprite.Y, GameSettings.VirtualHeight)
             .Finish(OnPlayerFainted);
     }
@@ -156,8 +155,8 @@ public sealed class TakeTurnState : GameStateBase
     private void OnFadeToBlackComplete()
     {
         _battle.PlayerPokemon.CurrentHp = _battle.PlayerPokemon.Hp;
-        SoundManager.StopMusic();
-        SoundManager.PlayFieldMusic();
+        Locator.Audio.StopMusic();
+        Locator.Audio.PlayFieldMusic();
         _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 1f, 0f, OnFadeFromBlackComplete));
     }
@@ -169,15 +168,15 @@ public sealed class TakeTurnState : GameStateBase
 
     private void HandleVictory()
     {
-        TweenManager.Instance.Tween(GameSettings.FaintTweenDuration)
+        Locator.Tweens.Tween(GameSettings.FaintTweenDuration)
             .Add(v => _battle.OpponentSprite.Y = v, _battle.OpponentSprite.Y, GameSettings.VirtualHeight)
             .Finish(OnOpponentFainted);
     }
 
     private void OnOpponentFainted()
     {
-        SoundManager.StopMusic();
-        SoundManager.PlayVictoryMusic();
+        Locator.Audio.StopMusic();
+        Locator.Audio.PlayVictoryMusic();
         _stack.Push(new BattleMessageState(Game, _stack, "Victory!", OnVictoryMessageClosed));
     }
 
@@ -186,17 +185,17 @@ public sealed class TakeTurnState : GameStateBase
         _earnedExp = _battle.OpponentPokemon.ExpReward;
         _stack.Push(new BattleMessageState(Game, _stack,
             $"You earned {_earnedExp} experience points!", () => { }, canInput: false));
-        TweenManager.Instance.After(GameSettings.ExpTweenDelay, StartExpTween);
+        Locator.Tweens.After(GameSettings.ExpTweenDelay, StartExpTween);
     }
 
     private void StartExpTween()
     {
-        SoundManager.PlayExp();
+        Locator.Audio.PlayExp();
         float targetExp = Math.Min(
             _battle.PlayerPokemon.CurrentExp + _earnedExp,
             _battle.PlayerPokemon.ExpToLevel);
 
-        TweenManager.Instance.Tween(GameSettings.ExpTweenDuration)
+        Locator.Tweens.Tween(GameSettings.ExpTweenDuration)
             .Add(v => _battle.PlayerExpBar.Value = v, _battle.PlayerExpBar.Value, targetExp)
             .Finish(OnExpTweenComplete);
     }
@@ -208,7 +207,7 @@ public sealed class TakeTurnState : GameStateBase
 
         if (_battle.PlayerPokemon.CurrentExp >= _battle.PlayerPokemon.ExpToLevel)
         {
-            SoundManager.PlayLevelup();
+            Locator.Audio.PlayLevelup();
             _battle.PlayerPokemon.CurrentExp -= _battle.PlayerPokemon.ExpToLevel;
             _battle.PlayerPokemon.LevelUp();
             _stack.Push(new BattleMessageState(Game, _stack, "Congratulations! Level Up!", () => FadeToField()));
@@ -224,8 +223,8 @@ public sealed class TakeTurnState : GameStateBase
 
     private void OnFadeToWhiteComplete()
     {
-        SoundManager.StopMusic();
-        SoundManager.PlayFieldMusic();
+        Locator.Audio.StopMusic();
+        Locator.Audio.PlayFieldMusic();
         _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
     }

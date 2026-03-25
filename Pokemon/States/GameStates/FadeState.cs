@@ -1,7 +1,7 @@
 using System;
+using Pokemon;
 using GMDCore;
 using GMDCore.States;
-using GMDCore.Tweening;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -26,7 +26,7 @@ public sealed class FadeState : GameStateBase
         _color   = color;
         _opacity = fromOpacity;
 
-        TweenManager.Instance.Tween(duration)
+        Locator.Tweens.Tween(duration)
             .Add(v => _opacity = v, fromOpacity, toOpacity)
             .Finish(() =>
             {

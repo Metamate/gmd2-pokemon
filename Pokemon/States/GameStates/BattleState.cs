@@ -1,12 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Battle;
 using Pokemon.Definitions;
 using Pokemon.Entities;
 using GMDCore.GUI;
 using Pokemon.Mons;
-using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
 using GMDCore.Graphics;
@@ -89,7 +88,7 @@ public sealed class BattleState : GameStateBase
 
     public override void Exit()
     {
-        SoundManager.StopMusic();
+        Locator.Audio.StopMusic();
     }
 
     public override void Update(GameTime gameTime)
@@ -101,7 +100,7 @@ public sealed class BattleState : GameStateBase
     private void StartSlideIn()
     {
         _slideStarted = true;
-        TweenManager.Instance.Tween(GameSettings.BattleSlideInDuration)
+        Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
             .Add(v => PlayerSprite.X    = v, PlayerSprite.X,   32f)
             .Add(v => OpponentSprite.X  = v, OpponentSprite.X, GameSettings.VirtualWidth - 96f)
             .Add(v => _playerCircleX    = v, _playerCircleX,   66f)

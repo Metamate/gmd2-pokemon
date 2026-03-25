@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Entities;
 using Pokemon.Input;
 using Pokemon.States.EntityStates;
@@ -44,8 +44,8 @@ public sealed class PlayerWalkState : EntityWalkState
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
         Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
 
-        SoundManager.PauseFieldMusic();
-        SoundManager.PlayBattleMusic();
+        Locator.Audio.PauseFieldMusic();
+        Locator.Audio.PlayBattleMusic();
 
         _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
             () =>

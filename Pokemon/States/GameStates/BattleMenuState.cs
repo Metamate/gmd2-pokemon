@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.GUI;
-using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
 
@@ -41,16 +40,16 @@ public sealed class BattleMenuState : GameStateBase
 
     private void OnRunSelected()
     {
-        SoundManager.PlayRun();
+        Locator.Audio.PlayRun();
         _stack.Pop(); // pop this menu
 
         _stack.Push(new BattleMessageState(Game, _stack, "You fled successfully!", () => { }, false));
 
-        TweenManager.Instance.After(0.5f, () =>
+        Locator.Tweens.After(0.5f, () =>
         {
             _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 0f, 1f, () =>
             {
-                SoundManager.PlayFieldMusic();
+                Locator.Audio.PlayFieldMusic();
                 _stack.Pop(); // pop BattleMessageState
                 _stack.Pop(); // pop BattleState
                 _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));

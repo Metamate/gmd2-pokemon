@@ -1,7 +1,6 @@
 using GMDCore;
 using GMDCore.Graphics;
 using GMDCore.States;
-using GMDCore.Tweening;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
@@ -62,7 +61,9 @@ public sealed class Game1 : Core
         PokemonDefinitions.LoadContent(Content);
         ContentLoader.LoadContent(Content);
 
-        SoundManager.LoadContent(Content);
+        var audio = new SoundManager();
+        audio.LoadContent(Content);
+        Locator.Provide(audio);
 
         StateStack.Push(new StartState(this));
     }
@@ -70,7 +71,7 @@ public sealed class Game1 : Core
     protected override void Update(GameTime gameTime)
     {
         // Tweens fire first so state changes from callbacks are visible to StateStack.Update.
-        TweenManager.Instance.Update(gameTime);
+        Locator.Tweens.Update(gameTime);
         StateStack.Update(gameTime);
         base.Update(gameTime);
     }

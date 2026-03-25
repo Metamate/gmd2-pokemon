@@ -1,11 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Definitions;
 using Pokemon.Input;
 using Pokemon.Mons;
-using GMDCore.Tweening;
 using GMDCore.States;
 using GMDCore;
 using GMDCore.Graphics;
@@ -33,13 +32,13 @@ public sealed class StartState : GameStateBase
 
     public override void Enter()
     {
-        SoundManager.PlayIntroMusic();
+        Locator.Audio.PlayIntroMusic();
         PickRandomSprite();
         _spriteX = GameSettings.VirtualWidth / 2f - 32f;
         _spriteY = GameSettings.VirtualHeight / 2f - 36f;
 
         // Cycle to a new random pokemon sprite every 3 seconds
-        TweenManager.Instance.Every(3f, CycleSprite);
+        Locator.Tweens.Every(3f, CycleSprite);
     }
 
     private void PickRandomSprite()
@@ -50,7 +49,7 @@ public sealed class StartState : GameStateBase
 
     private void CycleSprite()
     {
-        TweenManager.Instance.Tween(0.2f)
+        Locator.Tweens.Tween(0.2f)
             .Add(v => _spriteX = v, _spriteX, -64f)
             .Finish(() =>
             {
@@ -58,15 +57,15 @@ public sealed class StartState : GameStateBase
                 _spriteX = GameSettings.VirtualWidth;
                 _spriteY = GameSettings.VirtualHeight / 2f - 36f;
 
-                TweenManager.Instance.Tween(0.2f)
+                Locator.Tweens.Tween(0.2f)
                     .Add(v => _spriteX = v, _spriteX, GameSettings.VirtualWidth / 2f - 32f);
             });
     }
 
     public override void Exit()
     {
-        SoundManager.StopMusic();
-        TweenManager.Instance.Clear();
+        Locator.Audio.StopMusic();
+        Locator.Tweens.Clear();
     }
 
     public override void Update(GameTime gameTime)

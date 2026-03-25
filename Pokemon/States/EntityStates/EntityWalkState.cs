@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
+using Pokemon;
 using Pokemon.Entities;
-using GMDCore.Tweening;
 using Pokemon.World;
 
 namespace Pokemon.States.EntityStates;
@@ -42,7 +42,7 @@ public class EntityWalkState : EntityStateBase
         float targetX = toX * GameSettings.TileSize;
         float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
 
-        TweenManager.Instance.Tween(GameSettings.WalkTweenDuration)
+        Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
             .Add(v => Entity.X = v, Entity.X, targetX)
             .Add(v => Entity.Y = v, Entity.Y, targetY)
             .Finish(OnMovementComplete);

@@ -4,37 +4,36 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Pokemon.Audio;
 
-// Central audio manager. Music tracks are Songs played via MediaPlayer (one at a time).
-// Short sound effects are SoundEffects.
-public static class SoundManager
+// Concrete audio service. Load content first, then register with Locator.Provide(audio).
+public sealed class SoundManager : IAudio
 {
-    private static Song _fieldMusic;
-    private static Song _battleMusic;
-    private static Song _introMusic;
-    private static Song _victoryMusic;
+    private Song _fieldMusic;
+    private Song _battleMusic;
+    private Song _introMusic;
+    private Song _victoryMusic;
 
-    private static SoundEffect _blip;
-    private static SoundEffect _powerup;
-    private static SoundEffect _hit;
-    private static SoundEffect _run;
-    private static SoundEffect _heal;
-    private static SoundEffect _exp;
-    private static SoundEffect _levelup;
+    private SoundEffect _blip;
+    private SoundEffect _powerup;
+    private SoundEffect _hit;
+    private SoundEffect _run;
+    private SoundEffect _heal;
+    private SoundEffect _exp;
+    private SoundEffect _levelup;
 
-    public static void LoadContent(ContentManager content)
+    public void LoadContent(ContentManager content)
     {
         _fieldMusic   = content.Load<Song>("sounds/field_music");
         _battleMusic  = content.Load<Song>("sounds/battle_music");
         _introMusic   = content.Load<Song>("sounds/intro");
         _victoryMusic = content.Load<Song>("sounds/victory");
 
-        _blip     = content.Load<SoundEffect>("sounds/blip");
-        _powerup  = content.Load<SoundEffect>("sounds/powerup");
-        _hit      = content.Load<SoundEffect>("sounds/hit");
-        _run      = content.Load<SoundEffect>("sounds/run");
-        _heal     = content.Load<SoundEffect>("sounds/heal");
-        _exp      = content.Load<SoundEffect>("sounds/exp");
-        _levelup  = content.Load<SoundEffect>("sounds/levelup");
+        _blip    = content.Load<SoundEffect>("sounds/blip");
+        _powerup = content.Load<SoundEffect>("sounds/powerup");
+        _hit     = content.Load<SoundEffect>("sounds/hit");
+        _run     = content.Load<SoundEffect>("sounds/run");
+        _heal    = content.Load<SoundEffect>("sounds/heal");
+        _exp     = content.Load<SoundEffect>("sounds/exp");
+        _levelup = content.Load<SoundEffect>("sounds/levelup");
     }
 
     private static void PlayMusic(Song song)
@@ -43,18 +42,18 @@ public static class SoundManager
         MediaPlayer.Play(song);
     }
 
-    public static void PlayFieldMusic()   => PlayMusic(_fieldMusic);
-    public static void PlayBattleMusic()  => PlayMusic(_battleMusic);
-    public static void PlayIntroMusic()   => PlayMusic(_introMusic);
-    public static void PlayVictoryMusic() => PlayMusic(_victoryMusic);
-    public static void PauseFieldMusic()  => MediaPlayer.Pause();
-    public static void StopMusic()        => MediaPlayer.Stop();
+    public void PlayFieldMusic()   => PlayMusic(_fieldMusic);
+    public void PlayBattleMusic()  => PlayMusic(_battleMusic);
+    public void PlayIntroMusic()   => PlayMusic(_introMusic);
+    public void PlayVictoryMusic() => PlayMusic(_victoryMusic);
+    public void PauseFieldMusic()  => MediaPlayer.Pause();
+    public void StopMusic()        => MediaPlayer.Stop();
 
-    public static void PlayBlip()    => _blip?.Play();
-    public static void PlayPowerup() => _powerup?.Play();
-    public static void PlayHit()     => _hit?.Play();
-    public static void PlayRun()     => _run?.Play();
-    public static void PlayHeal()    => _heal?.Play();
-    public static void PlayExp()     => _exp?.Play();
-    public static void PlayLevelup() => _levelup?.Play();
+    public void PlayBlip()    => _blip?.Play();
+    public void PlayPowerup() => _powerup?.Play();
+    public void PlayHit()     => _hit?.Play();
+    public void PlayRun()     => _run?.Play();
+    public void PlayHeal()    => _heal?.Play();
+    public void PlayExp()     => _exp?.Play();
+    public void PlayLevelup() => _levelup?.Play();
 }

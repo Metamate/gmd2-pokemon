@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Entities;
 using Pokemon.Input;
 using Pokemon.States.PlayerStates;
@@ -24,19 +24,19 @@ public sealed class PlayState : GameStateBase
 
         player.ChangeState(new PlayerIdleState(player, _level, Game.StateStack));
 
-        SoundManager.PlayFieldMusic();
+        Locator.Audio.PlayFieldMusic();
     }
 
     public override void Exit()
     {
-        SoundManager.StopMusic();
+        Locator.Audio.StopMusic();
     }
 
     public override void Update(GameTime gameTime)
     {
         if (GameController.Heal)
         {
-            SoundManager.PlayHeal();
+            Locator.Audio.PlayHeal();
             _level.Player.Party.Pokemon[0].Heal();
 
             Game.StateStack.Push(new DialogueState(Game, Game.StateStack,

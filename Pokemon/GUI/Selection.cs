@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon.Audio;
+using Pokemon;
 using Pokemon.Input;
 using GMDCore.Graphics;
 using GMDCore.GUI;
@@ -46,16 +46,16 @@ public sealed class Selection
         if (GameController.MenuUp)
         {
             _currentIndex = (_currentIndex - 1 + _items.Count) % _items.Count;
-            SoundManager.PlayBlip();
+            Locator.Audio.PlayBlip();
         }
         else if (GameController.MenuDown)
         {
             _currentIndex = (_currentIndex + 1) % _items.Count;
-            SoundManager.PlayBlip();
+            Locator.Audio.PlayBlip();
         }
         else if (GameController.Confirm)
         {
-            SoundManager.PlayBlip();
+            Locator.Audio.PlayBlip();
             _items[_currentIndex].OnSelect?.Invoke();
         }
     }

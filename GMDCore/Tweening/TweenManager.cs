@@ -8,7 +8,6 @@ namespace GMDCore.Tweening;
 // Callbacks fire on the game thread.
 public sealed class TweenManager
 {
-    public static readonly TweenManager Instance = new();
 
     // Tweens one or more float properties over a fixed duration.
     public sealed class TweenGroup : ITweenTask
@@ -114,7 +113,7 @@ public sealed class TweenManager
     private readonly List<ITweenTask> _tasks = new();
     private readonly List<ITweenTask> _toAdd = new();
 
-    private TweenManager() { }
+    public TweenManager() { }
 
     // Start a tween group. Chain .Add() calls to specify properties, then .Finish() for a callback.
     public TweenGroup Tween(float duration)
