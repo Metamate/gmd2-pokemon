@@ -94,7 +94,6 @@ public sealed class BattleState : GameStateBase
     private void StartSlideIn()
     {
         _slideStarted = true;
-
         TweenManager.Instance.Tween(GameSettings.BattleSlideInDuration)
             .Add(v => PlayerSprite.X    = v, PlayerSprite.X,   32f)
             .Add(v => OpponentSprite.X  = v, OpponentSprite.X, GameSettings.VirtualWidth - 96f)
@@ -123,12 +122,10 @@ public sealed class BattleState : GameStateBase
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        // Background fill
         spriteBatch.Draw(Game1.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
-        // Shadow ellipses (approximated as flat rectangles)
         DrawEllipse(spriteBatch, _opponentCircleX, 60, 72, 24, ShadowColor);
         DrawEllipse(spriteBatch, _playerCircleX,   GameSettings.VirtualHeight - 64, 72, 24, ShadowColor);
 

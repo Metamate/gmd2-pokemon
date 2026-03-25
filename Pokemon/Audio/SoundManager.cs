@@ -35,41 +35,21 @@ public static class SoundManager
         _heal     = content.Load<SoundEffect>("sounds/heal");
         _exp      = content.Load<SoundEffect>("sounds/exp");
         _levelup  = content.Load<SoundEffect>("sounds/levelup");
-
-        MediaPlayer.IsRepeating = true;
     }
 
-    // ---- Music ----
-    public static void PlayFieldMusic()
+    private static void PlayMusic(Song song)
     {
         MediaPlayer.IsRepeating = true;
-        MediaPlayer.Play(_fieldMusic);
+        MediaPlayer.Play(song);
     }
 
-    // Pause the field music so it can be resumed later (conceptually; MediaPlayer resumes from start).
-    public static void PauseFieldMusic() => MediaPlayer.Pause();
+    public static void PlayFieldMusic()   => PlayMusic(_fieldMusic);
+    public static void PlayBattleMusic()  => PlayMusic(_battleMusic);
+    public static void PlayIntroMusic()   => PlayMusic(_introMusic);
+    public static void PlayVictoryMusic() => PlayMusic(_victoryMusic);
+    public static void PauseFieldMusic()  => MediaPlayer.Pause();
+    public static void StopMusic()        => MediaPlayer.Stop();
 
-    public static void PlayBattleMusic()
-    {
-        MediaPlayer.IsRepeating = true;
-        MediaPlayer.Play(_battleMusic);
-    }
-
-    public static void PlayIntroMusic()
-    {
-        MediaPlayer.IsRepeating = true;
-        MediaPlayer.Play(_introMusic);
-    }
-
-    public static void PlayVictoryMusic()
-    {
-        MediaPlayer.IsRepeating = true;
-        MediaPlayer.Play(_victoryMusic);
-    }
-
-    public static void StopMusic() => MediaPlayer.Stop();
-
-    // ---- SFX ----
     public static void PlayBlip()    => _blip?.Play();
     public static void PlayPowerup() => _powerup?.Play();
     public static void PlayHit()     => _hit?.Play();

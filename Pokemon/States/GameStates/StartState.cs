@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.Audio;
 using Pokemon.Definitions;
+using Pokemon.Input;
 using Pokemon.PokemonGame;
 using GMDCore.Tweening;
 using GMDCore.States;
@@ -65,7 +66,7 @@ public sealed class StartState : GameStateBase
 
     public override void Update(GameTime gameTime)
     {
-        if (Input.GameController.Confirm)
+        if (GameController.Confirm)
         {
             Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
                 () =>
@@ -84,22 +85,18 @@ public sealed class StartState : GameStateBase
     {
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        // Background
         spriteBatch.Draw(Game1.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BgColor);
 
-        // Shadow ellipse under sprite
         spriteBatch.Draw(Game1.Pixel,
             new Rectangle((int)(GameSettings.VirtualWidth / 2 - 72),
                           (int)(GameSettings.VirtualHeight / 2 + 8), 144, 48),
             ShadowColor);
 
-        // Pokemon sprite
         if (_currentSprite != null)
             spriteBatch.Draw(_currentSprite, new Vector2(_spriteX, _spriteY), Color.White);
 
-        // Title
         var titleSize    = Game1.LargeFont.MeasureString("50-Mon!");
         var subtitleSize = Game1.SmallFont.MeasureString("Press Enter");
 

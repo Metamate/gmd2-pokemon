@@ -26,16 +26,9 @@ public class EntityWalkState : EntityStateBase
     {
         Entity.ChangeAnimation(AnimationKeys.Walk(Entity.Direction));
 
-        int toX = Entity.MapX;
-        int toY = Entity.MapY;
-
-        switch (Entity.Direction)
-        {
-            case Direction.Left:  toX--; break;
-            case Direction.Right: toX++; break;
-            case Direction.Up:    toY--; break;
-            case Direction.Down:  toY++; break;
-        }
+        var step = Entity.Direction.ToVector2();
+        int toX  = Entity.MapX + (int)step.X;
+        int toY  = Entity.MapY + (int)step.Y;
 
         // Enforce map bounds (matching Lua EntityWalkState constraint)
         if (toX < 1 || toX > GameSettings.MapCols || toY < 1 || toY > GameSettings.MapRows)
@@ -59,7 +52,6 @@ public class EntityWalkState : EntityStateBase
 
     protected virtual void OnMovementComplete()
     {
-        // Default: transition back to idle
         Entity.ChangeState(new EntityIdleState(Entity));
     }
 }

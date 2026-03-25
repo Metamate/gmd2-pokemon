@@ -20,7 +20,7 @@ public sealed class Game1 : Core
     // Pixel-white 1×1 texture used by Panel, ProgressBar, and fade overlays.
     public static Texture2D Pixel { get; private set; }
 
-    // Three font sizes matching the Lua gFonts table (pixel-perfect bitmap fonts, no AA).
+    // Three font sizes (pixel-perfect bitmap fonts, no AA).
     public static BitmapFont SmallFont  { get; private set; }
     public static BitmapFont MediumFont { get; private set; }
     public static BitmapFont LargeFont  { get; private set; }
