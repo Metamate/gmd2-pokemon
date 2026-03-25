@@ -13,11 +13,7 @@ namespace Pokemon.GUI;
 // Responds to MenuUp / MenuDown and Confirm input events.
 public sealed class Selection
 {
-    public sealed class MenuItem
-    {
-        public string Text     { get; init; }
-        public Action OnSelect { get; init; }
-    }
+    public sealed record MenuItem(string Text, Action OnSelect);
 
     private readonly List<MenuItem> _items;
     private int _currentIndex;

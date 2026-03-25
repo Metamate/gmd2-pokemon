@@ -7,6 +7,7 @@ public sealed class Party
 {
     private readonly List<Mon> _pokemon = new();
     public IReadOnlyList<Mon> Pokemon => _pokemon;
+    public Mon Current => _pokemon[0];
 
     public Party(IEnumerable<Mon> pokemon)
     {

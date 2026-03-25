@@ -25,8 +25,8 @@ public sealed class BattleMenuState : GameStateBase
             GameSettings.VirtualWidth - 64, GameSettings.VirtualHeight - 64, 64, 64,
             new List<Selection.MenuItem>
             {
-                new() { Text = "Fight",  OnSelect = OnFightSelected },
-                new() { Text = "Run",    OnSelect = OnRunSelected }
+                new("Fight", OnFightSelected),
+                new("Run",   OnRunSelected)
             },
             Game1.SmallFont,
             Game1.CursorTex);

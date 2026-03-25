@@ -40,8 +40,9 @@ public sealed class BattleState : GameStateBase
     private readonly Panel    _bottomPanel;
     private readonly Texture2D _shadowTex;
 
-    private const int ShadowRx = 72;
-    private const int ShadowRy = 24;
+    private const int ShadowRx          = 72;
+    private const int ShadowRy          = 24;
+    private const int OpponentShadowY   = 60;
 
     private static readonly Color BattleBg    = new(214, 214, 214);
     private static readonly Color ShadowColor = new(45, 184, 45, 124);
@@ -55,8 +56,8 @@ public sealed class BattleState : GameStateBase
         _stack       = stack;
         WildOpponent = Opponent.CreateWild();
 
-        PlayerPokemon   = player.Party.Pokemon[0];
-        OpponentPokemon = WildOpponent.Party.Pokemon[0];
+        PlayerPokemon   = player.Party.Current;
+        OpponentPokemon = WildOpponent.Party.Current;
 
         // Battle sprites start off-screen
         var playerTex   = ContentLoader.GetPokemonSprite(PlayerPokemon.BattleSpriteBack);
@@ -132,7 +133,7 @@ public sealed class BattleState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
-        spriteBatch.Draw(_shadowTex, new Vector2(_opponentCircleX - ShadowRx, 60          - ShadowRy), Color.White);
+        spriteBatch.Draw(_shadowTex, new Vector2(_opponentCircleX - ShadowRx, OpponentShadowY - ShadowRy), Color.White);
         spriteBatch.Draw(_shadowTex, new Vector2(_playerCircleX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
 
         PlayerSprite.Draw(spriteBatch);

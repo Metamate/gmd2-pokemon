@@ -17,11 +17,11 @@ public sealed class BattleMessageState : GameStateBase
     private readonly bool       _canInput;
 
     public BattleMessageState(Core game, StateStack stack, string message,
-                               Action onClose = null, bool canInput = true)
+                               Action onClose, bool canInput = true)
         : base(game)
     {
         _stack    = stack;
-        _onClose  = onClose ?? (() => { });
+        _onClose  = onClose;
         _canInput = canInput;
         _textbox  = new Textbox(0, GameSettings.VirtualHeight - 64,
                                 GameSettings.VirtualWidth, 64,

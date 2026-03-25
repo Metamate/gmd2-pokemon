@@ -23,6 +23,8 @@ public static class ContentLoader
 
     public static void LoadContent(ContentManager content)
     {
+        if (_animationsFile != null) return;
+
         // Load battle sprites for every known species
         foreach (var species in PokemonDefinitions.All)
         {
