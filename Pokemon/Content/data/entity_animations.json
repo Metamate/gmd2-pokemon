@@ -1,0 +1,13 @@
+{
+  "interval": 0.15,
+  "animations": [
+    { "name": "walk-down",  "frames": [3, 4, 5, 4]      },
+    { "name": "walk-up",    "frames": [39, 40, 41, 40]   },
+    { "name": "walk-left",  "frames": [15, 16, 17, 16]   },
+    { "name": "walk-right", "frames": [27, 28, 29, 28]   },
+    { "name": "idle-down",  "frames": [4]                },
+    { "name": "idle-up",    "frames": [40]               },
+    { "name": "idle-left",  "frames": [16]               },
+    { "name": "idle-right", "frames": [28]               }
+  ]
+}

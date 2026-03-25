@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Xml.Linq;
+using System.Text.Json;
 using GMDCore.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -15,7 +13,13 @@ namespace Pokemon.Definitions;
 // Loads Pokemon battle sprites and entity animations from data files.
 public static class EntityDefinitions
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private static readonly Dictionary<string, Texture2D> _pokemonTextures = new();
+    private static EntityAnimationsFile _animationsFile;
 
     public static void LoadContent(ContentManager content)
     {
@@ -27,9 +31,9 @@ public static class EntityDefinitions
         }
 
         // Load entity animation definitions
-        string path = Path.Combine(content.RootDirectory, "data/entity_animations.xml");
+        string path = Path.Combine(content.RootDirectory, "data/entity_animations.json");
         using var stream = TitleContainer.OpenStream(path);
-        _entityAnimationsDoc = XDocument.Load(stream);
+        _animationsFile = JsonSerializer.Deserialize<EntityAnimationsFile>(stream, JsonOptions);
     }
 
     // Retrieve a pre-loaded Pokemon battle sprite by its content path key.
@@ -41,22 +45,12 @@ public static class EntityDefinitions
     // Build the walk + idle animation set from the shared entity atlas.
     public static Dictionary<string, Animation> CreateEntityAnimations(TextureAtlas atlas)
     {
-        var root     = _entityAnimationsDoc.Root;
-        double interval = double.Parse(root.Attribute("interval").Value);
-        var animations  = new Dictionary<string, Animation>();
-
-        foreach (var el in root.Elements("Animation"))
-        {
-            string name    = el.Attribute("name").Value;
-            int[]  frames  = el.Attribute("frames").Value
-                               .Split(',')
-                               .Select(int.Parse)
-                               .ToArray();
-            animations[name] = atlas.CreateAnimation(frames, interval);
-        }
-
+        var animations = new Dictionary<string, Animation>();
+        foreach (var entry in _animationsFile.Animations)
+            animations[entry.Name] = atlas.CreateAnimation(entry.Frames, _animationsFile.Interval);
         return animations;
     }
 
-    private static XDocument _entityAnimationsDoc;
+    private record EntityAnimationsFile(double Interval, List<AnimationEntry> Animations);
+    private record AnimationEntry(string Name, int[] Frames);
 }

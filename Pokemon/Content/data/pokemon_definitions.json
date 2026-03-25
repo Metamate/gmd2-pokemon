@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Aardart",
+    "battleSpriteFront": "images/pokemon/aardart-front",
+    "battleSpriteBack":  "images/pokemon/aardart-back",
+    "baseHp": 14, "baseAttack": 9, "baseDefense": 5, "baseSpeed": 6,
+    "hpIV": 3, "attackIV": 4, "defenseIV": 2, "speedIV": 3
+  },
+  {
+    "name": "Agnite",
+    "battleSpriteFront": "images/pokemon/agnite-front",
+    "battleSpriteBack":  "images/pokemon/agnite-back",
+    "baseHp": 12, "baseAttack": 7, "baseDefense": 3, "baseSpeed": 7,
+    "hpIV": 3, "attackIV": 4, "defenseIV": 2, "speedIV": 4
+  },
+  {
+    "name": "Anoleaf",
+    "battleSpriteFront": "images/pokemon/anoleaf-front",
+    "battleSpriteBack":  "images/pokemon/anoleaf-back",
+    "baseHp": 11, "baseAttack": 5, "baseDefense": 5, "baseSpeed": 6,
+    "hpIV": 3, "attackIV": 3, "defenseIV": 3, "speedIV": 4
+  },
+  {
+    "name": "Bamboon",
+    "battleSpriteFront": "images/pokemon/bamboon-front",
+    "battleSpriteBack":  "images/pokemon/bamboon-back",
+    "baseHp": 13, "baseAttack": 6, "baseDefense": 4, "baseSpeed": 7,
+    "hpIV": 3, "attackIV": 3, "defenseIV": 2, "speedIV": 5
+  },
+  {
+    "name": "Cardiwing",
+    "battleSpriteFront": "images/pokemon/cardiwing-front",
+    "battleSpriteBack":  "images/pokemon/cardiwing-back",
+    "baseHp": 14, "baseAttack": 7, "baseDefense": 3, "baseSpeed": 7,
+    "hpIV": 3, "attackIV": 4, "defenseIV": 2, "speedIV": 4
+  }
+]
