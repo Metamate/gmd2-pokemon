@@ -92,32 +92,41 @@ public sealed class TakeTurnState : GameStateBase
         {
             SoundManager.PlayPowerup();
 
-            TweenManager.Instance.Every(GameSettings.AttackBlinkInterval,
-                () => attackerSprite.Blinking = !attackerSprite.Blinking)
-            .Limit(GameSettings.AttackBlinkCount)
-            .Finish(() =>
-            {
-                attackerSprite.Blinking = false;
-                SoundManager.PlayHit();
+            // Lunge toward the opponent, then spring back
+            float originX = attackerSprite.X;
+            float nudge   = attackerSprite == _battle.PlayerSprite
+                            ? GameSettings.TackleNudge : -GameSettings.TackleNudge;
 
-                TweenManager.Instance.Every(GameSettings.AttackBlinkInterval,
-                    () => defenderSprite.Opacity = defenderSprite.Opacity < 0.5f ? 1f : 64f / 255f)
-                .Limit(GameSettings.AttackBlinkCount)
+            TweenManager.Instance.Tween(GameSettings.TackleDuration)
+                .Add(v => attackerSprite.X = v, originX, originX + nudge)
                 .Finish(() =>
                 {
-                    defenderSprite.Opacity = 1f;
-                    int dmg = Math.Max(1, attacker.Attack - defender.Defense);
-                    float targetHp = Math.Max(0, defender.CurrentHp - dmg);
+                    SoundManager.PlayHit();
 
-                    TweenManager.Instance.Tween(GameSettings.HpTweenDuration)
-                        .Add(v => defenderBar.Value = v, defenderBar.Value, targetHp)
+                    TweenManager.Instance.Tween(GameSettings.TackleDuration)
+                        .Add(v => attackerSprite.X = v, originX + nudge, originX)
                         .Finish(() =>
                         {
-                            defender.CurrentHp = (int)targetHp;
-                            onEnd();
+                            // Defender blinks (original Pokemon hide/show style)
+                            TweenManager.Instance.Every(GameSettings.AttackBlinkInterval,
+                                () => defenderSprite.Blinking = !defenderSprite.Blinking)
+                            .Limit(GameSettings.AttackBlinkCount)
+                            .Finish(() =>
+                            {
+                                defenderSprite.Blinking = false;
+                                int dmg = Math.Max(1, attacker.Attack - defender.Defense);
+                                float targetHp = Math.Max(0, defender.CurrentHp - dmg);
+
+                                TweenManager.Instance.Tween(GameSettings.HpTweenDuration)
+                                    .Add(v => defenderBar.Value = v, defenderBar.Value, targetHp)
+                                    .Finish(() =>
+                                    {
+                                        defender.CurrentHp = (int)targetHp;
+                                        onEnd();
+                                    });
+                            });
                         });
                 });
-            });
         });
     }
 
