@@ -3,9 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Pokemon.World;
 
-// A 2-D grid of Tiles. Equivalent to the Lua TileMap class.
-// Tiles are stored row-major in a 2-D array (0-indexed internally).
-// Grid coordinates passed to GetTile are 1-indexed (matching Lua).
+// A 2-D grid of Tiles stored row-major.
 public sealed class TileMap
 {
     private readonly Tile[,] _tiles;
@@ -20,11 +18,9 @@ public sealed class TileMap
         _tiles = new Tile[height, width];
     }
 
-    // Get tile at 1-indexed (x, y) grid coordinates.
-    public Tile GetTile(int x, int y) => _tiles[y - 1, x - 1];
+    public Tile GetTile(int x, int y) => _tiles[y, x];
 
-    // Set tile at 1-indexed (x, y) grid coordinates.
-    public void SetTile(int x, int y, Tile tile) => _tiles[y - 1, x - 1] = tile;
+    public void SetTile(int x, int y, Tile tile) => _tiles[y, x] = tile;
 
     public void Draw(SpriteBatch spriteBatch, TextureAtlas tileAtlas)
     {

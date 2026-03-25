@@ -4,15 +4,13 @@ using GMDCore.Graphics;
 
 namespace Pokemon.World;
 
-// A single tile on the map. Stores its 1-indexed grid position and tile ID.
-// Equivalent to the Lua Tile class.
+// A single tile on the map.
 public sealed class Tile
 {
-    // 1-indexed grid coordinates (matching Lua convention)
     public int GridX { get; }
     public int GridY { get; }
 
-    // 1-indexed tile ID used to look up the sprite from the tilesheet atlas.
+    // Tile ID used to look up the sprite from the tilesheet atlas (1-indexed in map data, atlas frames are 0-indexed).
     public int Id { get; }
 
     public Tile(int gridX, int gridY, int id)
@@ -24,10 +22,9 @@ public sealed class Tile
 
     public void Draw(SpriteBatch spriteBatch, TextureAtlas tileAtlas)
     {
-        // Skip the empty tile (Lua TileEmpty = 101) — it has no visual representation.
         if (Id <= 0 || Id == GameSettings.TileEmpty) return;
-        var region = tileAtlas.GetRegion($"frame_{Id - 1}");  // convert 1-indexed → 0-indexed
-        region.Draw(spriteBatch, new Vector2((GridX - 1) * GameSettings.TileSize,
-                                             (GridY - 1) * GameSettings.TileSize), Color.White);
+        var region = tileAtlas.GetRegion($"frame_{Id - 1}");
+        region.Draw(spriteBatch, new Vector2(GridX * GameSettings.TileSize,
+                                             GridY * GameSettings.TileSize), Color.White);
     }
 }

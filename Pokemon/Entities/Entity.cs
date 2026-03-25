@@ -9,10 +9,8 @@ namespace Pokemon.Entities;
 
 // Base entity class for the overworld. Stores grid position, pixel position, direction,
 // animations, and the current entity state (idle/walk).
-// Equivalent to the Lua Entity class.
 public class Entity
 {
-    // Grid coordinates (1-indexed, matching Lua)
     public int MapX { get; set; }
     public int MapY { get; set; }
 

@@ -17,7 +17,7 @@ public static class GameController
     public static bool Confirm => Core.Input.Keyboard.WasKeyJustPressed(Keys.Enter)
                                 || Core.Input.Keyboard.WasKeyJustPressed(Keys.Space);
 
-    // Heal shortcut (just-pressed, matches Lua 'p' key)
+    // Heal shortcut (just-pressed)
     public static bool Heal => Core.Input.Keyboard.WasKeyJustPressed(Keys.P);
 
     // Menu navigation (just-pressed)

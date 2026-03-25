@@ -14,7 +14,6 @@ namespace Pokemon.States.GameStates;
 
 // The main battle screen. Manages the two battle sprites, health bars, and EXP bar.
 // On first update the Pokemon slide in from the screen edges, then starting dialogue is shown.
-// Equivalent to the Lua BattleState.
 public sealed class BattleState : GameStateBase
 {
     private readonly StateStack _stack;

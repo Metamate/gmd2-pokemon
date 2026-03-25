@@ -4,7 +4,6 @@ using Pokemon.Entities;
 namespace Pokemon.States.EntityStates;
 
 // Base class for all entity states (idle, walk, …).
-// Equivalent to Lua's EntityBaseState.
 public abstract class EntityStateBase
 {
     protected readonly Entity Entity;

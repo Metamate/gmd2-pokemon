@@ -3,7 +3,6 @@ using System;
 namespace Pokemon.PokemonGame;
 
 // A runtime Pokemon instance with stats calculated from its species definition and level.
-// Equivalent to the Lua Pokemon class.
 public sealed class PokemonInstance
 {
     public string Name              { get; }

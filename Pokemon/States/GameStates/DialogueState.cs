@@ -9,7 +9,6 @@ namespace Pokemon.States.GameStates;
 
 // Shows a full-width textbox near the top of the screen with a message.
 // Pressing Confirm advances through pages; when the last page is dismissed the state pops itself.
-// Equivalent to the Lua DialogueState.
 public sealed class DialogueState : GameStateBase
 {
     private readonly StateStack _stack;

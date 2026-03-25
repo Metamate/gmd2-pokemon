@@ -7,7 +7,6 @@ using GMDCore.GUI;
 namespace Pokemon.GUI;
 
 // A Panel combined with a Selection — the standard menu widget.
-// Equivalent to the Lua Menu class.
 public sealed class Menu
 {
     private readonly Panel _panel;

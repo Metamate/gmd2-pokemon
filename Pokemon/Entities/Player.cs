@@ -16,8 +16,8 @@ public sealed class Player : Entity
         MapY   = GameSettings.PlayerStartMapY;
         Width  = GameSettings.TileSize;
         Height = GameSettings.TileSize;
-        X      = (MapX - 1) * GameSettings.TileSize;
-        Y      = (MapY - 1) * GameSettings.TileSize - Height / 2f;
+        X      = MapX * GameSettings.TileSize;
+        Y      = MapY * GameSettings.TileSize - Height / 2f;
 
         foreach (var (key, anim) in EntityDefinitions.CreateEntityAnimations(entityAtlas))
             Animations[key] = anim;

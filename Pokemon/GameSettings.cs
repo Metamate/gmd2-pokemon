@@ -9,18 +9,14 @@ public static class GameSettings
     public const int TileSize = 16;
 
     // The level is 50x50 tiles but the player can only move within the visible viewport.
-    // EntityWalkState enforces these bounds (matching the Lua source).
     public const int MapCols = 24;
     public const int MapRows = 13;
 
-    // Player starting grid position (1-indexed, matching Lua)
-    public const int PlayerStartMapX = 10;
-    public const int PlayerStartMapY = 10;
+    public const int PlayerStartMapX = 9;
+    public const int PlayerStartMapY = 9;
 
-    // Tall grass starts at row 11 (1-indexed, matching Lua)
-    public const int TallGrassStartRow = 11;
+    public const int TallGrassStartRow = 10;
 
-    // Tile IDs (1-indexed, matching Lua tile_ids.lua)
     public static readonly int[] TileGrass = { 46, 47 };
     public const int TileEmpty     = 101;
     public const int TileTallGrass = 42;

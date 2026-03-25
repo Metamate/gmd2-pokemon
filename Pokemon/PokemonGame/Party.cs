@@ -3,7 +3,6 @@ using System.Collections.Generic;
 namespace Pokemon.PokemonGame;
 
 // A collection of Pokemon owned by a trainer (player or opponent).
-// Equivalent to the Lua Party class.
 public sealed class Party
 {
     private readonly List<PokemonInstance> _pokemon = new();

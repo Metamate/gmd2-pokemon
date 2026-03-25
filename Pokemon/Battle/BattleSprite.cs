@@ -11,7 +11,7 @@ public sealed class BattleSprite
     public float Y       { get; set; }
     public float Opacity { get; set; } = 1f;
 
-    // When true the sprite is hidden (simulates the Lua "flash white" blink).
+    // When true the sprite is hidden, producing a blink effect.
     public bool Blinking { get; set; }
 
     public BattleSprite(Texture2D texture, float x, float y)

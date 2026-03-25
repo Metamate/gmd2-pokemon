@@ -2,7 +2,6 @@ using Pokemon.PokemonGame;
 
 namespace Pokemon.Battle;
 
-// The opposing trainer in a battle. Equivalent to the Lua Opponent class.
 public sealed class Opponent
 {
     public Party Party { get; }

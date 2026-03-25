@@ -11,7 +11,6 @@ namespace Pokemon.GUI;
 
 // Vertical menu selection widget. Draws item labels and a cursor next to the selected item.
 // Responds to MenuUp / MenuDown and Confirm input events.
-// Equivalent to the Lua Selection class.
 public sealed class Selection
 {
     public sealed class MenuItem

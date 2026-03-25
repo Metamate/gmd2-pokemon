@@ -10,7 +10,6 @@ using GMDCore;
 namespace Pokemon.States.GameStates;
 
 // Renders the Fight / Run menu during a battle.
-// Equivalent to the Lua BattleMenuState.
 public sealed class BattleMenuState : GameStateBase
 {
     private readonly StateStack  _stack;

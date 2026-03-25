@@ -13,7 +13,6 @@ namespace Pokemon.States.GameStates;
 
 // Executes one full battle round: the faster Pokemon attacks first, then the slower one.
 // After each hit the relevant health bar is tweened. Handles faint and victory outcomes.
-// Equivalent to the Lua TakeTurnState.
 public sealed class TakeTurnState : GameStateBase
 {
     private readonly StateStack  _stack;

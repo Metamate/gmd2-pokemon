@@ -11,7 +11,6 @@ using GMDCore;
 namespace Pokemon.States.GameStates;
 
 // The overworld play state: renders the level and player, handles the heal shortcut.
-// Equivalent to the Lua PlayState.
 public sealed class PlayState : GameStateBase
 {
     private Level _level;

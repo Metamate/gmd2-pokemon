@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace Pokemon.PokemonGame;
 
-// Static data definition for a Pokemon species, equivalent to Lua's pokemon_defs.lua entries.
 public sealed class PokemonSpecies
 {
     public string Name              { get; init; }
@@ -22,7 +21,7 @@ public sealed class PokemonSpecies
     public int SpeedIV   { get; init; }
 }
 
-// Registry of all Pokemon species, equivalent to POKEMON_DEFS / POKEMON_IDS in Lua.
+// Registry of all Pokemon species, equivalent to PokemonDefinitions.
 public static class PokemonDefinitions
 {
     public static readonly IReadOnlyList<PokemonSpecies> All = new List<PokemonSpecies>
