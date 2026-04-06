@@ -2,7 +2,7 @@
 
 A top-down Pokemon-like built on **MonoGame/XNA** in C#. This document walks through the architecture from the ground up, pointing at relevant source code as it goes.
 
-This project builds directly on the Zelda project's GMDCore foundation and introduces several new concepts: a state *stack* (instead of a single active state), a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
+Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
 ---
 
@@ -54,7 +54,7 @@ gmd2-pokemon/
     └── LabelTiles.cs      # Dev utility — annotates a spritesheet with tile indices
 ```
 
-The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. Compared to the Zelda project, `GMDCore` has grown to include `StateStack`, `TweenManager`, `BitmapFont`, `TileMap`, and `Panel`/`ProgressBar` — capabilities that proved reusable across games.
+The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon` project.
 
 ---
 
@@ -62,7 +62,7 @@ The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothin
 
 ### Layer 1 — `Core` (`GMDCore/Core.cs`)
 
-`Core` manages the window, the virtual resolution scaler, and the per-frame input snapshot — identical to the Zelda project. It also creates a shared 1×1 white `Pixel` texture used throughout the GUI system:
+`Core` manages the window, the virtual resolution scaler, and the per-frame input snapshot. It also creates a shared 1×1 white `Pixel` texture used throughout the GUI system:
 
 ```csharp
 // Core.cs
@@ -80,7 +80,7 @@ Any class can draw a filled rectangle by calling `spriteBatch.Draw(Core.Pixel, r
 
 ### Layer 2 — `Game1` (`Pokemon/Game1.cs`)
 
-The key difference from Zelda: `Game1` updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
+`Game1` updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
 
 ```csharp
 // Game1.cs
@@ -120,7 +120,7 @@ Core.Update
 
 ## 3. The State Stack
 
-The Zelda project held a single `GameStateBase` reference and swapped it via `SetState`. Pokemon replaces that with a **stack**, allowing states to be layered on top of each other.
+Swapping a single active state works for simple linear flows, but breaks down once you need states to coexist — a fade overlay on top of a running game scene, or a menu on top of a battle. The **state stack** solves this by allowing states to be layered on top of each other.
 
 ```csharp
 // GMDCore/States/StateStack.cs
@@ -207,7 +207,7 @@ new("Run",   OnRunSelected)
 
 ## 5. Service Locator Pattern
 
-In the Zelda project, audio was a static singleton class (`SoundManager.PlayMusic()`). Pokemon replaces this with the **Service Locator** pattern (from *Game Programming Patterns* by Robert Nystrom), which keeps the convenience of global access while allowing the concrete implementation to be swapped out.
+A common approach to audio in games is a static singleton (`SoundManager.PlayMusic()`). That works, but hides dependencies — nothing in a class's signature tells you it uses audio. The **Service Locator** pattern (from *Game Programming Patterns* by Robert Nystrom) keeps the convenience of global access while making registration explicit and allowing the concrete implementation to be swapped out.
 
 ```csharp
 // Pokemon/Locator.cs
@@ -574,7 +574,7 @@ Records are ideal here: they are pure data containers with no behaviour, and the
 
 ### State stack over single state
 
-A single `SetState` swap (as in Zelda) cannot express overlapping states — you cannot fade while something underneath is still visible, or show a text box over a live game scene. The state stack makes these straightforward. The cost is that states must be careful about when they pop themselves (usually in `Update` when their purpose is complete), but the payoff is composable, layered game flow with no special-casing.
+Swapping a single active state cannot express overlapping states — you cannot fade while something underneath is still visible, or show a text box over a live game scene. The state stack makes these straightforward. The cost is that states must be careful about when they pop themselves (usually in `Update` when their purpose is complete), but the payoff is composable, layered game flow with no special-casing.
 
 ### Tweens as the primary sequencer
 
@@ -582,7 +582,7 @@ The battle system has no `Update` logic that branches on a phase variable. All s
 
 ### Service Locator over static singletons
 
-The Zelda project used static singleton classes (`SoundManager.PlayMusic()`). That approach works but hides dependencies — you cannot tell from a class's constructor what it relies on. The Service Locator makes the dependency explicit at registration time (`Locator.Provide(audio)`) and allows the `NullAudio` null object to stand in before the real service is ready. All call sites are identical regardless of which implementation is active.
+A static singleton is simple but hides dependencies — you cannot tell from a class's constructor what it relies on. The Service Locator makes registration explicit (`Locator.Provide(audio)`) and allows the `NullAudio` null object to stand in before the real service is ready. All call sites are identical regardless of which implementation is active.
 
 ### Null object for audio
 
