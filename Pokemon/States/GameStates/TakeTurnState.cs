@@ -77,20 +77,25 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Push(new BattleMenuState(Game, _stack, _battle));
     }
 
+    // Plays the full attack animation sequence for one Pokemon attacking another.
+    // Each step is nested inside the previous one's completion callback so they
+    // play one after another — this is intentional: tweens don't block, so the
+    // only way to say "do this, then that" is to start the next thing when the
+    // current one finishes.
     private void ExecuteAttack(Mon attacker, Mon defender,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
                                 ProgressBar attackerBar, ProgressBar defenderBar,
                                 Action onEnd)
     {
-        // Non-input message that stays on screen during the animation
+        // Show the attack message (canInput: false keeps it up during the animation)
         _stack.Push(new BattleMessageState(Game, _stack,
             $"{attacker.Name} attacks {defender.Name}!", () => { }, canInput: false));
 
+        // Step 1: pause briefly, then lunge toward the opponent
         Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
         {
             Locator.Audio.PlayPowerup();
 
-            // Lunge toward the opponent, then spring back
             float originX = attackerSprite.X;
             float nudge   = attackerSprite == _battle.PlayerSprite
                             ? GameSettings.TackleNudge : -GameSettings.TackleNudge;
@@ -99,18 +104,20 @@ public sealed class TakeTurnState : GameStateBase
                 .Add(v => attackerSprite.X = v, originX, originX + nudge)
                 .Finish(() =>
                 {
+                    // Step 2: spring back to the original position
                     Locator.Audio.PlayHit();
 
                     Locator.Tweens.Tween(GameSettings.TackleDuration)
                         .Add(v => attackerSprite.X = v, originX + nudge, originX)
                         .Finish(() =>
                         {
-                            // Defender blinks (original Pokemon hide/show style)
+                            // Step 3: blink the defender to show they were hit
                             Locator.Tweens.Every(GameSettings.AttackBlinkInterval,
                                 () => defenderSprite.Blinking = !defenderSprite.Blinking)
                             .Limit(GameSettings.AttackBlinkCount)
                             .Finish(() =>
                             {
+                                // Step 4: apply damage and animate the health bar dropping
                                 defenderSprite.Blinking = false;
                                 int dmg = attacker.CalcDamageTo(defender);
                                 float targetHp = Math.Max(0, defender.CurrentHp - dmg);
