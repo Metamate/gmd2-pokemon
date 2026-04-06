@@ -34,7 +34,7 @@ public sealed class Level
                 int baseId = GameSettings.TileGrass[rng.Next(GameSettings.TileGrass.Length)];
                 BaseLayer.SetTile(x, y, baseId);
 
-                int grassId = y >= GameSettings.TallGrassStartRow ? GameSettings.TileTallGrass : 0;
+                int grassId = y >= GameSettings.TallGrassStartRow ? GameSettings.TileTallGrass : -1;
                 GrassLayer.SetTile(x, y, grassId);
             }
         }

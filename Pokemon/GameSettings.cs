@@ -17,8 +17,8 @@ public static class GameSettings
 
     public const int TallGrassStartRow = 10;
 
-    public static readonly int[] TileGrass = { 46, 47 };
-    public const int TileTallGrass = 42;
+    public static readonly int[] TileGrass = { 45, 46 };
+    public const int TileTallGrass = 41;
 
     // Walk animation
     public const double WalkAnimIntervalSeconds = 0.15;
