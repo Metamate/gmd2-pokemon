@@ -51,7 +51,7 @@ gmd2-pokemon/
 │   │   └── PlayerStates/  # PlayerIdleState, PlayerWalkState
 │   └── World/             # Level
 └── Tools/
-    └── LabelTiles.cs      # Dev utility — annotates a spritesheet with tile indices
+    └── GenerateFontAtlas.py   # Dev utility — regenerates the bitmap font atlas PNGs
 ```
 
 The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon` project.
@@ -171,6 +171,8 @@ Vector2 size = Game1.MediumFont.MeasureString("Hello!");
 ```
 
 Three sizes (`SmallFont`, `MediumFont`, `LargeFont`) are loaded once in `Game1` and accessed as statics.
+
+The font images and the character-width data hardcoded in `BitmapFont.cs` were not written by hand — they were produced by `Tools/GenerateFontAtlas.py`. The script takes a `.ttf` font file, renders each character into a spritesheet, and prints the width of every character so the font knows how far to advance after drawing each one. If you ever want to use a different font, run the script and copy the printed widths back into `BitmapFont.cs`.
 
 ### `Panel` — `GMDCore/GUI/Panel.cs`
 
@@ -318,11 +320,16 @@ public float Y    { get; set; }
 3. Calls `OnMovementComplete` when the tween finishes.
 
 ```csharp
+float targetX = toX * GameSettings.TileSize;
+float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
+
 Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
-    .Add(v => Entity.X = v, Entity.X, targetPixelX)
-    .Add(v => Entity.Y = v, Entity.Y, targetPixelY)
+    .Add(v => Entity.X = v, Entity.X, targetX)
+    .Add(v => Entity.Y = v, Entity.Y, targetY)
     .Finish(OnMovementComplete);
 ```
+
+The Y target subtracts half the entity's height to visually center the sprite on its tile.
 
 ### `PlayerWalkState` — `Pokemon/States/PlayerStates/PlayerWalkState.cs`
 
@@ -509,6 +516,17 @@ public (int hpGain, int atkGain, int defGain, int spdGain) LevelUp()
 ```
 
 EXP required grows quadratically with level. `LevelUp` returns the stat gains as a tuple so `TakeTurnState` can display them without needing to inspect `Mon` state before and after.
+
+### Exp Reward
+
+When a Pokemon is defeated it awards EXP to the winner. The amount is calculated directly on `Mon`:
+
+```csharp
+// Mon.cs
+public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;
+```
+
+A Pokemon with higher IVs and a higher level is worth more EXP. The battle state reads this property without knowing the formula.
 
 ### `Party` — `Pokemon/Mons/Party.cs`
 
