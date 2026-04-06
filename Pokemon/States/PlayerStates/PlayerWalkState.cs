@@ -60,11 +60,7 @@ public sealed class PlayerWalkState : EntityWalkState
     protected override void OnMovementComplete()
     {
         // Continue walking if a direction key is still held
-        Direction? dir = null;
-        if      (GameController.Left)  dir = Direction.Left;
-        else if (GameController.Right) dir = Direction.Right;
-        else if (GameController.Up)    dir = Direction.Up;
-        else if (GameController.Down)  dir = Direction.Down;
+        Direction? dir = GameController.MovementDirection;
 
         if (dir.HasValue)
         {

@@ -23,12 +23,7 @@ public sealed class PlayerIdleState : EntityIdleState
 
     public override void Update(GameTime gameTime)
     {
-        Direction? dir = null;
-
-        if      (GameController.Left)  dir = Direction.Left;
-        else if (GameController.Right) dir = Direction.Right;
-        else if (GameController.Up)    dir = Direction.Up;
-        else if (GameController.Down)  dir = Direction.Down;
+        Direction? dir = GameController.MovementDirection;
 
         if (dir.HasValue)
         {
