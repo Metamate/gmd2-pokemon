@@ -12,8 +12,10 @@ using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
-// The main battle screen. Manages the two battle sprites, health bars, and EXP bar.
-// On first update the Pokemon slide in from the screen edges, then starting dialogue is shown.
+// The main battle screen. It owns the battle scene itself: sprites, bars, panel,
+// and the opening "wild monster appeared" sequence.
+// Other battle-related states (menu, messages, turn resolution) are pushed on top
+// of this one so the scene keeps drawing underneath them.
 public sealed class BattleState : GameStateBase
 {
     private readonly StateStack _stack;
@@ -111,6 +113,8 @@ public sealed class BattleState : GameStateBase
 
     private void ShowStartingDialogue()
     {
+        // The battle intro is itself a small state-stack script:
+        // message -> message -> battle menu.
         _stack.Push(new BattleMessageState(_stack,
             $"A wild {OpponentPokemon.Name} appeared!",
             () =>

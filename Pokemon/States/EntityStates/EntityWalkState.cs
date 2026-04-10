@@ -25,24 +25,26 @@ public class EntityWalkState : EntityStateBase
     {
         Entity.ChangeAnimation(AnimationKeys.Walk(Entity.Direction));
 
-        if (!TryGetDestination(out int toX, out int toY))
+        Point destination = GetDestination();
+
+        if (!IsInsideMap(destination))
         {
             Entity.ChangeState(new EntityIdleState(Entity));
             Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
             return;
         }
 
-        if (!BeforeMove(toX, toY))
+        if (!BeforeMove(destination))
             return;
 
         // Grid position updates immediately — tile-based logic (encounters, collision)
         // always uses the destination tile, while X/Y tween smoothly for visuals.
-        Entity.MapX = toX;
-        Entity.MapY = toY;
+        Entity.MapX = destination.X;
+        Entity.MapY = destination.Y;
 
-        float targetX = toX * GameSettings.TileSize;
+        float targetX = destination.X * GameSettings.TileSize;
         // Subtract half the entity height so the sprite stands on the tile, not above it
-        float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
+        float targetY = destination.Y * GameSettings.TileSize - Entity.Height / 2f;
 
         Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
             .Add(v => Entity.X = v, Entity.X, targetX)
@@ -50,18 +52,20 @@ public class EntityWalkState : EntityStateBase
             .Finish(OnMovementComplete);
     }
 
-    protected bool TryGetDestination(out int toX, out int toY)
+    // Compute the tile directly in front of the entity based on its facing direction.
+    protected Point GetDestination()
     {
         var step = Entity.Direction.ToVector2();
-        toX = Entity.MapX + (int)step.X;
-        toY = Entity.MapY + (int)step.Y;
-        return toX >= 0 && toX < GameSettings.MapCols
-            && toY >= 0 && toY < GameSettings.MapRows;
+        return new Point(Entity.MapX + (int)step.X, Entity.MapY + (int)step.Y);
     }
+
+    protected bool IsInsideMap(Point tile)
+        => tile.X >= 0 && tile.X < GameSettings.MapCols
+        && tile.Y >= 0 && tile.Y < GameSettings.MapRows;
 
     // Hook for subclasses that need to react to the destination tile before the
     // logical move is committed.
-    protected virtual bool BeforeMove(int toX, int toY) => true;
+    protected virtual bool BeforeMove(Point destination) => true;
 
     protected virtual void OnMovementComplete()
     {

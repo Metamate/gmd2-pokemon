@@ -9,7 +9,9 @@ using GMDCore.States;
 namespace Pokemon.States.GameStates;
 
 // Executes one full battle round: the faster Pokemon attacks first, then the slower one.
-// After each hit the relevant health bar is tweened. Handles faint and victory outcomes.
+// This state does not draw anything itself. Its whole job is sequencing:
+// show messages, run tweens, apply damage, then hand control back to the menu
+// or to a victory/faint path.
 public sealed class TakeTurnState : GameStateBase
 {
     private readonly StateStack  _stack;
@@ -70,6 +72,7 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Pop(); // pop second attack message
         if (CheckDeaths()) { _stack.Pop(); return; }
 
+        // No one fainted, so this turn is over and the player chooses again.
         _stack.Pop(); // pop TakeTurnState itself
         _stack.Push(new BattleMenuState(_stack, _battle));
     }

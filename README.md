@@ -4,6 +4,26 @@ A top-down Pokemon-like built on **MonoGame/XNA** in C#. This document walks thr
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
+## Read In This Order
+
+Do not try to understand every file in one pass. A much better path is:
+
+1. `Pokemon/Game1.cs` — see the big picture: load content, create the state stack, update, draw.
+2. `GMDCore/States/StateStack.cs` and `GMDCore/States/GameStateBase.cs` — understand how game flow is layered.
+3. `Pokemon/States/GameStates/PlayState.cs` — see the overworld running as one state.
+4. `Pokemon/Entities/Entity.cs`, `Pokemon/States/EntityStates/EntityWalkState.cs`, and `Pokemon/States/PlayerStates/PlayerWalkState.cs` — understand tile movement and encounters.
+5. `Pokemon/States/GameStates/BattleState.cs`, `Pokemon/States/GameStates/BattleMenuState.cs`, and `Pokemon/States/GameStates/TakeTurnState.cs` — understand the battle loop and how multiple states cooperate.
+6. `Pokemon/Mons/Mon.cs` — understand stats, damage, experience, and leveling.
+
+On a first read, it is completely fine to ignore:
+
+- most of `GMDCore/Graphics`
+- the bitmap font internals
+- audio implementation details
+- the exact tween implementation
+
+Those parts matter, but they are support systems. The main architecture lessons live in the files listed above.
+
 ---
 
 ## Table of Contents
@@ -55,6 +75,13 @@ gmd2-pokemon/
 ```
 
 The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon` project.
+
+That split is one of the main architecture lessons in the project:
+
+- `GMDCore` is the reusable engine-like layer.
+- `Pokemon` is the game layer built on top of it.
+- If a class talks about Pokemon, grass, battles, or leveling, it belongs in `Pokemon`.
+- If a class could be reused in a different game, it probably belongs in `GMDCore`.
 
 ---
 
@@ -117,11 +144,17 @@ SpriteBatch.End();
 
 ```
 Core.Update
-  └─ Game1.Update
+  └─ Game1.UpdateGame
        ├─ Locator.Tweens.Update        ← tween callbacks may push/pop states
        └─ StateStack.Update
             └─ (top state).Update      ← e.g. PlayState, BattleState, FadeState
 ```
+
+This order matters:
+
+- input must be updated before game code checks keys
+- tweens run before states so finished animations can change state immediately
+- only then does the top state read input and decide what happens next
 
 ---
 
@@ -167,6 +200,15 @@ When the player selects Fight:
 ## 4. GUI System
 
 The GUI layer provides reusable widgets for menus, dialogue, and stat displays.
+
+The guiding idea is to build a few tiny widgets and then combine them:
+
+- `Panel` draws a box
+- `Textbox` combines a `Panel` with wrapped text and paging
+- `Selection` handles moving a cursor through a list of choices
+- `Menu` combines a `Panel` with a `Selection`
+
+This is a good beginner-friendly UI architecture because each class has one easy-to-name job.
 
 ### `BitmapFont` — `GMDCore/Graphics/BitmapFont.cs`
 
@@ -233,6 +275,14 @@ public static class Locator
 ```
 
 Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the teaching example on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
+
+For teaching purposes, think of `Locator` as the game's shared toolbox:
+
+- audio service
+- tween manager
+- shared loaded assets
+
+This is not the only way to structure a game, but it keeps small gameplay classes approachable because they do not need large constructors just to receive a font, a cursor texture, and an audio service.
 
 ### The Null Object
 
@@ -326,7 +376,7 @@ public float Y    { get; set; }
 
 ### `EntityWalkState` — `Pokemon/States/EntityStates/EntityWalkState.cs`
 
-`Enter` is called once when the walk begins. `AttemptMove` checks whether the target tile is within the map boundary, lets subclasses inspect the destination tile, then:
+`Enter` is called once when the walk begins. `AttemptMove` computes the tile directly in front of the entity, checks whether it is within the map boundary, lets subclasses inspect that destination tile, then:
 
 1. Optionally reacts to the destination tile before movement is committed.
 2. Updates `MapX` / `MapY` to the target tile immediately.
@@ -334,8 +384,9 @@ public float Y    { get; set; }
 4. Calls `OnMovementComplete` when the tween finishes.
 
 ```csharp
-float targetX = toX * GameSettings.TileSize;
-float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
+Point destination = GetDestination();
+float targetX = destination.X * GameSettings.TileSize;
+float targetY = destination.Y * GameSettings.TileSize - Entity.Height / 2f;
 
 Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
     .Add(v => Entity.X = v, Entity.X, targetX)
@@ -399,9 +450,9 @@ The overworld is two `TileMap` layers (base terrain and tall grass) plus the pla
 Random encounters are checked against the **destination tile** in `PlayerWalkState.BeforeMove`, so the code matches the game rule students will expect: stepping **into** tall grass can trigger a battle.
 
 ```csharp
-protected override bool BeforeMove(int toX, int toY)
+protected override bool BeforeMove(Point destination)
 {
-    int tileId = Level.GrassLayer.GetTile(toX, toY);
+    int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
     if (tileId != GameSettings.TileTallGrass) return true;
     if (!RollEncounter()) return true;
 
@@ -445,7 +496,7 @@ Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     });
 ```
 
-`BattleState` exposes its sprites and progress bars as public properties so `TakeTurnState` can animate them without needing its own references.
+`BattleState` exposes its sprites and progress bars as public properties so `TakeTurnState` can animate them without needing its own references. It is the persistent backdrop for the whole fight. It keeps drawing the scene while other states sit on top of it.
 
 ### `BattleMenuState` — `Pokemon/States/GameStates/BattleMenuState.cs`
 
@@ -464,6 +515,15 @@ After(pause) → tween sprite lunge → tween lunge back
 ```
 
 Everything is driven by `Locator.Tweens` — no `Update` loop, no frame counters. When the sequence ends, `TakeTurnState` pops itself and pushes `BattleMenuState` for the next turn, or pushes `BattleMessageState` for a faint/victory outcome.
+
+This is a nice example of separating **scene ownership** from **event sequencing**:
+
+- `BattleState` owns the scene and HUD
+- `BattleMenuState` owns player choice
+- `BattleMessageState` owns temporary text overlays
+- `TakeTurnState` owns the order of events in one turn
+
+Each class stays smaller because it has one main reason to change.
 
 **Battle state diagram:**
 

@@ -28,9 +28,9 @@ public sealed class PlayerWalkState : EntityWalkState
     private static bool RollEncounter()
         => System.Random.Shared.Next(GameSettings.EncounterChance) == 0;
 
-    protected override bool BeforeMove(int toX, int toY)
+    protected override bool BeforeMove(Point destination)
     {
-        int tileId = Level.GrassLayer.GetTile(toX, toY);
+        int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
         if (tileId != GameSettings.TileTallGrass) return true;
         if (!RollEncounter()) return true;
 
