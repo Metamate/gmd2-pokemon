@@ -1,6 +1,6 @@
 # Architecture Walkthrough — GMD2 Pokemon
 
-A top-down Pokemon-like built on **MonoGame/XNA** in C#. This document walks through the architecture from the ground up, pointing at relevant source code as it goes.
+A top-down Pokemon-like built on **MonoGame** in C#. This document walks through the architecture from the ground up, pointing at relevant source code as it goes.
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
