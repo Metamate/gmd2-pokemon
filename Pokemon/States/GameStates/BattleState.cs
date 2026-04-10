@@ -127,7 +127,7 @@ public sealed class BattleState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
 
         spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),

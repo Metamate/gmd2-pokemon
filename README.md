@@ -126,15 +126,15 @@ protected override void UpdateGame(GameTime gameTime)
 }
 ```
 
-`Game1` also renders into a **`RenderTarget2D`** at the virtual resolution before upscaling to the screen with point sampling. This guarantees pixel-perfect output at any window size without requiring a transform matrix on every `SpriteBatch.Begin`.
+`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into the window. This is a very common pixel-art approach because it keeps gameplay drawing simple and avoids tile seam artifacts that can appear when every sprite is scaled individually.
 
 ```csharp
 // Game1.cs
 GraphicsDevice.SetRenderTarget(_renderTarget);
 GraphicsDevice.Clear(Color.Black);
 StateStack.Draw(SpriteBatch);
-
 GraphicsDevice.SetRenderTarget(null);
+
 SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 SpriteBatch.Draw(_renderTarget, dest, Color.White);
 SpriteBatch.End();
@@ -170,7 +170,7 @@ public void Update(GameTime gameTime) { ... }   // only the top state updates
 public void Draw(SpriteBatch sb)      { ... }   // all states draw, bottom to top
 ```
 
-Only the top state receives `Update` — it has exclusive control of input. All states draw, so underlying states remain visible behind overlays.
+Only the top state receives `Update` — it has exclusive control of input. All states draw, so underlying states remain visible behind overlays. Each state still draws in the same virtual coordinate system through `Core.BeginDraw`; `Game1` handles window scaling afterward by drawing the final render target.
 
 This enables patterns that a single-state machine cannot express:
 

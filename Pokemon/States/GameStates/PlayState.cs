@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 using Pokemon.Entities;
 using Pokemon.Input;
 using Pokemon.States.PlayerStates;
@@ -50,7 +51,7 @@ public sealed class PlayState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         _level.Draw(spriteBatch);
         spriteBatch.End();
     }

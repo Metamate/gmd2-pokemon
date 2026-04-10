@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace GMDCore.States;
 
 // Base class for all game states managed by the StateStack.
-// Each state owns its own SpriteBatch.Begin/End calls inside Draw().
+// Each state owns its own Begin/End calls inside Draw(), usually through Core.BeginDraw().
 public abstract class GameStateBase
 {
     public virtual void Enter() { }

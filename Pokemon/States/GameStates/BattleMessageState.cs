@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 using Pokemon.GUI;
 using GMDCore.States;
 
@@ -42,7 +43,7 @@ public sealed class BattleMessageState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         _textbox.Draw(spriteBatch);
         spriteBatch.End();
     }

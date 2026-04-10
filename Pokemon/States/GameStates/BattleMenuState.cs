@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 using Pokemon.GUI;
 using GMDCore.States;
 
@@ -59,7 +60,7 @@ public sealed class BattleMenuState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         _menu.Draw(spriteBatch);
         spriteBatch.End();
     }

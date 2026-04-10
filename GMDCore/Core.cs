@@ -12,7 +12,7 @@ public class Core : Game
     private readonly int _virtualWidth;
     private readonly int _virtualHeight;
     protected GraphicsDeviceManager Graphics;
-    protected Matrix ScreenScaleMatrix;
+    public static Rectangle DestinationRectangle { get; private set; }
     public SpriteBatch SpriteBatch { get; set; }
     public static InputManager Input { get; set; } = new();
     public StateStack StateStack { get; protected set; }
@@ -61,6 +61,13 @@ public class Core : Game
 
     protected virtual void UpdateGame(GameTime gameTime) { }
 
+    // Standard draw setup for game states: draw in virtual coordinates with
+    // point sampling. Game1 handles scaling the final render target to the window.
+    public static void BeginDraw(SpriteBatch spriteBatch)
+    {
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+    }
+
     protected override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
@@ -85,14 +92,18 @@ public class Core : Game
             currentHeight = aspect * _virtualHeight;
         }
 
-        ScreenScaleMatrix = Matrix.CreateScale(currentWidth / _virtualWidth, currentHeight / _virtualHeight, 1);
+        DestinationRectangle = new Rectangle(
+            (int)(screenWidth / 2 - currentWidth / 2),
+            (int)(screenHeight / 2 - currentHeight / 2),
+            (int)currentWidth,
+            (int)currentHeight);
 
         GraphicsDevice.Viewport = new()
         {
-            X = (int)(screenWidth / 2 - currentWidth / 2),
-            Y = (int)(screenHeight / 2 - currentHeight / 2),
-            Width = (int)currentWidth,
-            Height = (int)currentHeight,
+            X = DestinationRectangle.X,
+            Y = DestinationRectangle.Y,
+            Width = DestinationRectangle.Width,
+            Height = DestinationRectangle.Height,
             MinDepth = 0,
             MaxDepth = 1,
         };

@@ -48,7 +48,10 @@ public sealed class Game1 : Core
             cursorTex,
             shadowTex));
 
-        _renderTarget = new RenderTarget2D(GraphicsDevice, GameSettings.VirtualWidth, GameSettings.VirtualHeight);
+        _renderTarget = new RenderTarget2D(
+            GraphicsDevice,
+            GameSettings.VirtualWidth,
+            GameSettings.VirtualHeight);
 
         // Species data must load before ContentLoader (sprite paths are derived from it)
         PokemonDefinitions.LoadContent(Content);
@@ -70,24 +73,21 @@ public sealed class Game1 : Core
 
     protected override void Draw(GameTime gameTime)
     {
-        // Capture the letterbox destination rect before switching render target
-        // (Core.UpdateScreenScaleMatrix sets GraphicsDevice.Viewport to the centered rect)
-        var dest = new Rectangle(GraphicsDevice.Viewport.X, GraphicsDevice.Viewport.Y,
-                                 GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-
-        // Draw all states into the virtual-resolution render target (no scaling matrix needed)
+        // Draw the whole game at the virtual resolution first.
         GraphicsDevice.SetRenderTarget(_renderTarget);
         GraphicsDevice.Clear(Color.Black);
         StateStack.Draw(SpriteBatch);
-
-        // Upscale the render target to the screen with point sampling (pixel-perfect)
         GraphicsDevice.SetRenderTarget(null);
-        GraphicsDevice.Viewport = new Viewport(0, 0,
+
+        // Then scale that one image to the current window/viewport.
+        GraphicsDevice.Viewport = new Viewport(
+            0,
+            0,
             GraphicsDevice.PresentationParameters.BackBufferWidth,
             GraphicsDevice.PresentationParameters.BackBufferHeight);
         GraphicsDevice.Clear(Color.Black);
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        SpriteBatch.Draw(_renderTarget, dest, Color.White);
+        SpriteBatch.Draw(_renderTarget, DestinationRectangle, Color.White);
         SpriteBatch.End();
 
         base.Draw(gameTime);
