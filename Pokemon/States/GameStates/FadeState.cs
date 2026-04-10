@@ -20,7 +20,6 @@ public sealed class FadeState : GameStateBase
 
     public FadeState(StateStack stack, Color color, float duration,
                      float fromOpacity, float toOpacity, Action onComplete)
-        : base(Game1.Current)
     {
         _stack   = stack;
         _color   = color;

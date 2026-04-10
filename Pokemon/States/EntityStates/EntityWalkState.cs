@@ -36,10 +36,13 @@ public class EntityWalkState : EntityStateBase
             return;
         }
 
+        // Grid position updates immediately — tile-based logic (encounters, collision)
+        // always uses the destination tile, while X/Y tween smoothly for visuals.
         Entity.MapX = toX;
         Entity.MapY = toY;
 
         float targetX = toX * GameSettings.TileSize;
+        // Subtract half the entity height so the sprite stands on the tile, not above it
         float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
 
         Locator.Tweens.Tween(GameSettings.WalkTweenDuration)

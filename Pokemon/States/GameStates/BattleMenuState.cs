@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon;
 using Pokemon.GUI;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -15,8 +13,7 @@ public sealed class BattleMenuState : GameStateBase
     private readonly BattleState _battleState;
     private readonly Menu        _menu;
 
-    public BattleMenuState(Core game, StateStack stack, BattleState battleState)
-        : base(game)
+    public BattleMenuState(StateStack stack, BattleState battleState)
     {
         _stack       = stack;
         _battleState = battleState;
@@ -35,7 +32,7 @@ public sealed class BattleMenuState : GameStateBase
     private void OnFightSelected()
     {
         _stack.Pop();
-        _stack.Push(new TakeTurnState(Game, _stack, _battleState));
+        _stack.Push(new TakeTurnState(_stack, _battleState));
     }
 
     private void OnRunSelected()
@@ -43,7 +40,7 @@ public sealed class BattleMenuState : GameStateBase
         Locator.Audio.PlayRun();
         _stack.Pop(); // pop this menu
 
-        _stack.Push(new BattleMessageState(Game, _stack, "You fled successfully!", () => { }, false));
+        _stack.Push(new BattleMessageState(_stack, "You fled successfully!", () => { }, false));
 
         Locator.Tweens.After(0.5f, () =>
         {

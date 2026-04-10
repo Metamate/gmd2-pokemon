@@ -391,8 +391,8 @@ private bool CheckForEncounter()
     if (tileId != GameSettings.TileTallGrass) return false;
     if (!RollEncounter()) return false;
 
-    // freeze the player, pause music, fade to battle
-    Locator.Audio.PauseFieldMusic();
+    // freeze the player, stop music, fade to battle
+    Locator.Audio.StopMusic();
     Locator.Audio.PlayBattleMusic();
 
     _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
@@ -515,7 +515,7 @@ public (int hpGain, int atkGain, int defGain, int spdGain) LevelUp()
 }
 ```
 
-EXP required grows quadratically with level. `LevelUp` returns the stat gains as a tuple so `TakeTurnState` can display them without needing to inspect `Mon` state before and after.
+EXP required grows quadratically with level. `LevelUp` returns the stat gains as a tuple so `TakeTurnState` can display them (e.g. "Level Up! HP+2 ATK+1 DEF+0 SPD+1") without needing to inspect `Mon` state before and after.
 
 ### Exp Reward
 

@@ -9,8 +9,6 @@ public class TextureAtlas
     private readonly Dictionary<string, TextureRegion> _regions = [];
     public Texture2D Texture { get; set; }
 
-    public TextureAtlas() { }
-
     public TextureAtlas(Texture2D texture)
     {
         Texture = texture;

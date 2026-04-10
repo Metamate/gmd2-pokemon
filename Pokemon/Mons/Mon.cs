@@ -55,7 +55,7 @@ public sealed class Mon
 
     // Rolls stats for one level. Each stat's IV (1–5) is tested 3 times against a d6:
     // if the roll is ≤ IV the stat increases by 1. Returns the four increases.
-    public (int hpGain, int atkGain, int defGain, int spdGain) RollStatsLevelUp()
+    private (int hpGain, int atkGain, int defGain, int spdGain) RollStatsLevelUp()
     {
         int hpGain = 0, atkGain = 0, defGain = 0, spdGain = 0;
         var rng = Random.Shared;

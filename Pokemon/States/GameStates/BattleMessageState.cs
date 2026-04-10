@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon.GUI;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -16,9 +15,8 @@ public sealed class BattleMessageState : GameStateBase
     private readonly Action     _onClose;
     private readonly bool       _canInput;
 
-    public BattleMessageState(Core game, StateStack stack, string message,
+    public BattleMessageState(StateStack stack, string message,
                                Action onClose, bool canInput = true)
-        : base(game)
     {
         _stack    = stack;
         _onClose  = onClose;

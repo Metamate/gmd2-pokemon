@@ -9,14 +9,6 @@ public class AnimatedSprite : Sprite
     private TimeSpan _elapsed;
     private Animation _animation;
 
-    public int TimesPlayed { get; set; }
-
-    public Animation Animation
-    {
-        get => _animation;
-        set => Play(value);
-    }
-
     public void Play(Animation animation)
     {
         if (_animation == animation) return;
@@ -24,24 +16,7 @@ public class AnimatedSprite : Sprite
         _animation = animation;
         _currentFrame = 0;
         _elapsed = TimeSpan.Zero;
-        TimesPlayed = 0;
         Region = _animation.Frames[0];
-    }
-
-    public void Restart()
-    {
-        _currentFrame = 0;
-        _elapsed = TimeSpan.Zero;
-        TimesPlayed = 0;
-        if (_animation != null)
-            Region = _animation.Frames[0];
-    }
-
-    public AnimatedSprite() { }
-
-    public AnimatedSprite(Animation animation)
-    {
-        Animation = animation;
     }
 
     public void Update(GameTime gameTime)
@@ -64,7 +39,6 @@ public class AnimatedSprite : Sprite
                 else
                 {
                     _currentFrame = _animation.Frames.Count - 1;
-                    TimesPlayed++;
                 }
             }
 

@@ -1,12 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon;
 using Pokemon.Battle;
 using GMDCore.GUI;
 using Pokemon.Mons;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -27,8 +25,7 @@ public sealed class TakeTurnState : GameStateBase
     // Stored between OnVictoryMessageClosed and OnExpTweenComplete.
     private int _earnedExp;
 
-    public TakeTurnState(Core game, StateStack stack, BattleState battle)
-        : base(game)
+    public TakeTurnState(StateStack stack, BattleState battle)
     {
         _stack  = stack;
         _battle = battle;
@@ -74,7 +71,7 @@ public sealed class TakeTurnState : GameStateBase
         if (CheckDeaths()) { _stack.Pop(); return; }
 
         _stack.Pop(); // pop TakeTurnState itself
-        _stack.Push(new BattleMenuState(Game, _stack, _battle));
+        _stack.Push(new BattleMenuState(_stack, _battle));
     }
 
     // Plays the full attack animation sequence for one Pokemon attacking another.
@@ -88,7 +85,7 @@ public sealed class TakeTurnState : GameStateBase
                                 Action onEnd)
     {
         // Show the attack message (canInput: false keeps it up during the animation)
-        _stack.Push(new BattleMessageState(Game, _stack,
+        _stack.Push(new BattleMessageState(_stack,
             $"{attacker.Name} attacks {defender.Name}!", () => { }, canInput: false));
 
         // Step 1: pause briefly, then lunge toward the opponent
@@ -154,7 +151,7 @@ public sealed class TakeTurnState : GameStateBase
     }
 
     private void OnPlayerFainted() =>
-        _stack.Push(new BattleMessageState(Game, _stack, "You fainted!", OnFaintMessageClosed));
+        _stack.Push(new BattleMessageState(_stack, "You fainted!", OnFaintMessageClosed));
 
     private void OnFaintMessageClosed() =>
         _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 0f, 1f, OnFadeToBlackComplete));
@@ -169,7 +166,7 @@ public sealed class TakeTurnState : GameStateBase
     }
 
     private void OnFadeFromBlackComplete() =>
-        _stack.Push(new DialogueState(Game, _stack, "Your Pokemon has been fully restored; try again!"));
+        _stack.Push(new DialogueState(_stack, "Your Pokemon has been fully restored; try again!"));
 
     // ---- Victory path ----
 
@@ -184,13 +181,13 @@ public sealed class TakeTurnState : GameStateBase
     {
         Locator.Audio.StopMusic();
         Locator.Audio.PlayVictoryMusic();
-        _stack.Push(new BattleMessageState(Game, _stack, "Victory!", OnVictoryMessageClosed));
+        _stack.Push(new BattleMessageState(_stack, "Victory!", OnVictoryMessageClosed));
     }
 
     private void OnVictoryMessageClosed()
     {
         _earnedExp = _battle.OpponentPokemon.ExpReward;
-        _stack.Push(new BattleMessageState(Game, _stack,
+        _stack.Push(new BattleMessageState(_stack,
             $"You earned {_earnedExp} experience points!", () => { }, canInput: false));
         Locator.Tweens.After(GameSettings.ExpTweenDelay, StartExpTween);
     }
@@ -216,8 +213,10 @@ public sealed class TakeTurnState : GameStateBase
         {
             Locator.Audio.PlayLevelup();
             _battle.PlayerPokemon.CurrentExp -= _battle.PlayerPokemon.ExpToLevel;
-            _battle.PlayerPokemon.LevelUp();
-            _stack.Push(new BattleMessageState(Game, _stack, "Congratulations! Level Up!", () => FadeToField()));
+            var (hp, atk, def, spd) = _battle.PlayerPokemon.LevelUp();
+            _stack.Push(new BattleMessageState(_stack,
+                $"Level Up! HP+{hp} ATK+{atk} DEF+{def} SPD+{spd}",
+                () => FadeToField()));
         }
         else
         {

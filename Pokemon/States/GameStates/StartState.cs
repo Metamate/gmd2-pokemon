@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pokemon;
@@ -7,7 +6,6 @@ using Pokemon.Input;
 using Pokemon.Mons;
 using GMDCore.States;
 using GMDCore;
-using GMDCore.Graphics;
 
 namespace Pokemon.States.GameStates;
 
@@ -15,19 +13,17 @@ namespace Pokemon.States.GameStates;
 // Press Enter/Space to start the game.
 public sealed class StartState : GameStateBase
 {
+    private readonly StateStack _stack;
     private Texture2D _currentSprite;
     private float _spriteX;
     private float _spriteY;
 
     private static readonly Color BgColor    = new(188, 188, 188);
     private static readonly Color TitleColor = new(24, 24, 24);
-    private static readonly Color ShadowColor = new(45, 184, 45, 124);
 
-    private readonly Texture2D _shadowTex;
-
-    public StartState(Core game) : base(game)
+    public StartState(StateStack stack)
     {
-        _shadowTex = TextureFactory.CreateEllipse(Game1.Current.GraphicsDevice, 72, 24, ShadowColor);
+        _stack = stack;
     }
 
     public override void Enter()
@@ -72,15 +68,15 @@ public sealed class StartState : GameStateBase
     {
         if (GameController.Confirm)
         {
-            Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,
+            _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 0f, 1f,
                 () =>
                 {
-                    Game.StateStack.Pop(); // pop StartState
-                    Game.StateStack.Push(new PlayState(Game));
-                    Game.StateStack.Push(new DialogueState(Game, Game.StateStack,
+                    _stack.Pop(); // pop StartState
+                    _stack.Push(new PlayState(_stack));
+                    _stack.Push(new DialogueState(_stack,
                         "Welcome to the world of VIAMon! Walk in the tall grass to fight monsters. " +
                         "Press P to heal. Press Enter or Space to dismiss messages."));
-                    Game.StateStack.Push(new FadeState(Game.StateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
+                    _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
                 }));
         }
     }
@@ -93,7 +89,7 @@ public sealed class StartState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BgColor);
 
-        spriteBatch.Draw(_shadowTex,
+        spriteBatch.Draw(Game1.ShadowTex,
             new Vector2(GameSettings.VirtualWidth / 2f - 72, GameSettings.VirtualHeight / 2f + 4),
             Color.White);
 

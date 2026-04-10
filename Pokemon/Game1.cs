@@ -12,10 +12,8 @@ namespace Pokemon;
 
 public sealed class Game1 : Core
 {
-    // Static accessors so states created without a Game1 reference can reach shared resources.
+    // Static accessors so states can reach shared resources via Game1.Current.
     public static Game1 Current { get; private set; }
-
-    public new Matrix ScreenScaleMatrix => base.ScreenScaleMatrix;
 
     // Three font sizes (pixel-perfect bitmap fonts, no AA).
     public static BitmapFont SmallFont  { get; private set; }
@@ -26,6 +24,9 @@ public sealed class Game1 : Core
     public static TextureAtlas TileAtlas   { get; private set; }
     public static TextureAtlas EntityAtlas { get; private set; }
     public static Texture2D    CursorTex  { get; private set; }
+
+    // Shared shadow ellipse texture (used on title screen and in battle)
+    public static Texture2D ShadowTex { get; private set; }
 
     private RenderTarget2D _renderTarget;
 
@@ -54,6 +55,7 @@ public sealed class Game1 : Core
         TileAtlas   = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/tiles"), GameSettings.TileSize, GameSettings.TileSize);
         EntityAtlas = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/entities"), GameSettings.TileSize, GameSettings.TileSize);
         CursorTex   = Content.Load<Texture2D>("images/cursor");
+        ShadowTex   = TextureFactory.CreateEllipse(GraphicsDevice, 72, 24, new Color(45, 184, 45, 124));
 
         _renderTarget = new RenderTarget2D(GraphicsDevice, GameSettings.VirtualWidth, GameSettings.VirtualHeight);
 
@@ -65,7 +67,7 @@ public sealed class Game1 : Core
         audio.LoadContent(Content);
         Locator.Provide(audio);
 
-        StateStack.Push(new StartState(this));
+        StateStack.Push(new StartState(StateStack));
     }
 
     protected override void Update(GameTime gameTime)

@@ -41,7 +41,7 @@ public sealed class Textbox
         if (_endOfText)
         {
             _displayLines.Clear();
-            _panel.Toggle();   // hide panel
+            _panel.Hide();
             IsClosed = true;
             return;
         }

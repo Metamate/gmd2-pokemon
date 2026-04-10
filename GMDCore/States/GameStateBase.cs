@@ -7,10 +7,6 @@ namespace GMDCore.States;
 // Each state owns its own SpriteBatch.Begin/End calls inside Draw().
 public abstract class GameStateBase
 {
-    protected readonly Core Game;
-
-    protected GameStateBase(Core game) => Game = game;
-
     public virtual void Enter() { }
     public virtual void Exit()  { }
     public virtual void Update(GameTime gameTime) { }

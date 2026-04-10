@@ -44,7 +44,7 @@ public sealed class PlayerWalkState : EntityWalkState
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
         Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
 
-        Locator.Audio.PauseFieldMusic();
+        Locator.Audio.StopMusic();
         Locator.Audio.PlayBattleMusic();
 
         _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,

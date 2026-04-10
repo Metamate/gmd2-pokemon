@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/Users/jakik/projects/GMD2Playground/gmd2-pokemon/GMDCore/*.cs /c/Users/jakik/projects/GMD2Playground/gmd2-pokemon/GMDCore/**/*.cs)",
+      "Bash(wc -l /c/Users/jakik/projects/GMD2Playground/gmd2-pokemon/Pokemon/*.cs /c/Users/jakik/projects/GMD2Playground/gmd2-pokemon/Pokemon/**/*.cs)",
+      "Bash(dotnet build:*)"
+    ]
+  }
+}
