@@ -21,7 +21,8 @@ public sealed class BattleMessageState : GameStateBase
         _stack    = stack;
         _onClose  = onClose;
         _canInput = canInput;
-        _textbox  = new Textbox(0, GameSettings.VirtualHeight - 64,
+        var txtPos = Layout.GetPosition(Anchor.BottomLeft, GameSettings.VirtualWidth, 64);
+        _textbox  = new Textbox(txtPos.X, txtPos.Y,
                                 GameSettings.VirtualWidth, 64,
                                 message, Game1.MediumFont);
     }

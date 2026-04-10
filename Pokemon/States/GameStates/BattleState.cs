@@ -5,6 +5,7 @@ using Pokemon.Battle;
 using Pokemon.Definitions;
 using Pokemon.Entities;
 using GMDCore.GUI;
+using Pokemon.GUI;
 using Pokemon.Mons;
 using GMDCore.States;
 using GMDCore;
@@ -65,20 +66,23 @@ public sealed class BattleState : GameStateBase
         _playerShadowX   = -68f;
         _opponentShadowX =  GameSettings.VirtualWidth + 32f;
 
+        var pBarPos = Layout.GetPosition(Anchor.BottomRight, 152, 6, -8, -74);
         PlayerHealthBar = new ProgressBar(
-            GameSettings.VirtualWidth - 160, GameSettings.VirtualHeight - 80, 152, 6,
+            pBarPos.X, pBarPos.Y, 152, 6,
             HpColor, PlayerPokemon.CurrentHp, PlayerPokemon.Hp);
 
+        var oBarPos = Layout.GetPosition(Anchor.TopLeft, 152, 6, 8, 8);
         OpponentHealthBar = new ProgressBar(
-            8, 8, 152, 6,
+            oBarPos.X, oBarPos.Y, 152, 6,
             HpColor, OpponentPokemon.CurrentHp, OpponentPokemon.Hp);
 
+        var expBarPos = Layout.GetPosition(Anchor.BottomRight, 152, 6, -8, -67);
         PlayerExpBar = new ProgressBar(
-            GameSettings.VirtualWidth - 160, GameSettings.VirtualHeight - 73, 152, 6,
+            expBarPos.X, expBarPos.Y, 152, 6,
             ExpColor, PlayerPokemon.CurrentExp, PlayerPokemon.ExpToLevel);
 
-        _bottomPanel = new Panel(0, GameSettings.VirtualHeight - 64,
-                                 GameSettings.VirtualWidth, 64);
+        var panelPos = Layout.GetPosition(Anchor.BottomLeft, GameSettings.VirtualWidth, 64);
+        _bottomPanel = new Panel(panelPos.X, panelPos.Y, GameSettings.VirtualWidth, 64);
     }
 
     public override void Exit()

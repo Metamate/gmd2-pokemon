@@ -83,8 +83,13 @@ public sealed class Mon
     // Restore HP to full.
     public void Heal() => CurrentHp = Hp;
 
-    // Damage this Pokemon deals to a defender: attack minus defense, minimum 1.
-    public int CalcDamageTo(Mon defender) => Math.Max(1, Attack - defender.Defense);
+    // Damage this Pokemon deals to a defender using a specific move.
+    public int CalcDamageTo(Mon defender, Move move)
+    {
+        // Simple damage formula: (Attack * MovePower / 10) - Defense, minimum 1
+        int damage = (Attack * move.BasePower / 10) - defender.Defense;
+        return Math.Max(1, damage);
+    }
 
     // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;

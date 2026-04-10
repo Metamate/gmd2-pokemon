@@ -38,9 +38,6 @@ public static class GameSettings
     public const float BattleSlideInDuration = 1f;
 
     // Battle attack animation timing (seconds)
-    public const float AttackPauseDuration  = 0.5f;
-    public const float TackleDuration       = 0.12f;  // time for one leg of the lunge
-    public const float TackleNudge          = 20f;    // pixels toward the opponent
     public const float AttackBlinkInterval  = 0.1f;
     public const int   AttackBlinkCount     = 6;
     public const float HpTweenDuration      = 0.5f;

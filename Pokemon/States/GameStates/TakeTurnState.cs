@@ -51,7 +51,7 @@ public sealed class TakeTurnState : GameStateBase
     }
 
     public override void Enter() =>
-        ExecuteAttack(_firstPokemon, _secondPokemon, _firstSprite, _secondSprite,
+        ExecuteAttack(_firstPokemon, _secondPokemon, Move.Tackle, _firstSprite, _secondSprite,
                       _firstBar, _secondBar, OnFirstAttackComplete);
 
     // ---- Attack sequence ----
@@ -61,7 +61,7 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Pop(); // pop first attack message
         if (CheckDeaths()) { _stack.Pop(); return; }
 
-        ExecuteAttack(_secondPokemon, _firstPokemon, _secondSprite, _firstSprite,
+        ExecuteAttack(_secondPokemon, _firstPokemon, Move.Tackle, _secondSprite, _firstSprite,
                       _secondBar, _firstBar, OnSecondAttackComplete);
     }
 
@@ -79,32 +79,32 @@ public sealed class TakeTurnState : GameStateBase
     // play one after another — this is intentional: tweens don't block, so the
     // only way to say "do this, then that" is to start the next thing when the
     // current one finishes.
-    private void ExecuteAttack(Mon attacker, Mon defender,
+    private void ExecuteAttack(Mon attacker, Mon defender, Move move,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
                                 ProgressBar attackerBar, ProgressBar defenderBar,
                                 Action onEnd)
     {
         // Show the attack message (canInput: false keeps it up during the animation)
         _stack.Push(new BattleMessageState(_stack,
-            $"{attacker.Name} attacks {defender.Name}!", () => { }, canInput: false));
+            $"{attacker.Name} used {move.Name}!", () => { }, canInput: false));
 
         // Step 1: pause briefly, then lunge toward the opponent
-        Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
+        Locator.Tweens.After(move.PauseBeforeAttack, () =>
         {
             Locator.Audio.PlayPowerup();
 
             float originX = attackerSprite.X;
             float nudge   = attackerSprite == _battle.PlayerSprite
-                            ? GameSettings.TackleNudge : -GameSettings.TackleNudge;
+                            ? move.LungeDistance : -move.LungeDistance;
 
-            Locator.Tweens.Tween(GameSettings.TackleDuration)
+            Locator.Tweens.Tween(move.LungeDuration)
                 .Add(v => attackerSprite.X = v, originX, originX + nudge)
                 .Finish(() =>
                 {
                     // Step 2: spring back to the original position
                     Locator.Audio.PlayHit();
 
-                    Locator.Tweens.Tween(GameSettings.TackleDuration)
+                    Locator.Tweens.Tween(move.LungeDuration)
                         .Add(v => attackerSprite.X = v, originX + nudge, originX)
                         .Finish(() =>
                         {
@@ -116,7 +116,7 @@ public sealed class TakeTurnState : GameStateBase
                             {
                                 // Step 4: apply damage and animate the health bar dropping
                                 defenderSprite.Blinking = false;
-                                int dmg = attacker.CalcDamageTo(defender);
+                                int dmg = attacker.CalcDamageTo(defender, move);
                                 float targetHp = Math.Max(0, defender.CurrentHp - dmg);
 
                                 Locator.Tweens.Tween(GameSettings.HpTweenDuration)
