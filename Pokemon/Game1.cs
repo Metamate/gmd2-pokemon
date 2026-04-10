@@ -12,6 +12,8 @@ namespace Pokemon;
 
 public sealed class Game1 : Core
 {
+    // The whole game is first drawn at the virtual resolution into this texture,
+    // then scaled once into DestinationRectangle.
     private RenderTarget2D _renderTarget;
 
     public Game1()
@@ -79,7 +81,7 @@ public sealed class Game1 : Core
         StateStack.Draw(SpriteBatch);
         GraphicsDevice.SetRenderTarget(null);
 
-        // Then scale that one image to the current window/viewport.
+        // Then scale that one image into the centered letterboxed/pillarboxed area.
         GraphicsDevice.Viewport = new Viewport(
             0,
             0,

@@ -12,6 +12,9 @@ public class Core : Game
     private readonly int _virtualWidth;
     private readonly int _virtualHeight;
     protected GraphicsDeviceManager Graphics;
+    // Where the final virtual-resolution image should be drawn inside the window.
+    // If the window aspect ratio differs from the virtual one, this rectangle is
+    // centered and leaves black bars around it.
     public static Rectangle DestinationRectangle { get; private set; }
     public SpriteBatch SpriteBatch { get; set; }
     public static InputManager Input { get; set; } = new();
@@ -33,7 +36,7 @@ public class Core : Game
         IsMouseVisible = true;
         Window.Title = title;
         Window.AllowUserResizing = true;
-        Window.ClientSizeChanged += (s, e) => UpdateScreenScaleMatrix();
+        Window.ClientSizeChanged += (s, e) => UpdatePresentation();
     }
 
     protected override void Initialize()
@@ -41,7 +44,7 @@ public class Core : Game
         SpriteBatch = new SpriteBatch(GraphicsDevice);
         Pixel = new Texture2D(GraphicsDevice, 1, 1);
         Pixel.SetData(new[] { Color.White });
-        UpdateScreenScaleMatrix();
+        UpdatePresentation();
         base.Initialize();
     }
 
@@ -73,7 +76,9 @@ public class Core : Game
         base.Draw(gameTime);
     }
 
-    private void UpdateScreenScaleMatrix()
+    // Recompute the centered destination rectangle that preserves the virtual
+    // aspect ratio inside the current window.
+    private void UpdatePresentation()
     {
         float screenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
         float screenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;

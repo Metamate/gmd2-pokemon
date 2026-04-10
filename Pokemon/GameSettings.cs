@@ -20,9 +20,6 @@ public static class GameSettings
     public static readonly int[] TileGrass = { 45, 46 };
     public const int TileTallGrass = 41;
 
-    // Walk animation
-    public const double WalkAnimIntervalSeconds = 0.15;
-
     // Time (seconds) to tween one tile-step walk
     public const float WalkTweenDuration = 0.5f;
 
@@ -49,11 +46,9 @@ public static class GameSettings
     public const float FadeDuration = 1f;
 
     // GUI
-    public const int   TextboxLineHeight = 16; // pixels per text line
     public const int   TextboxPadding    = 4;  // inner padding from panel edge
     public const int   TextboxLinesPerPage = 3;
 
     // Selection menu cursor sprite size
     public const int CursorWidth  = 8;
-    public const int CursorHeight = 8;
 }

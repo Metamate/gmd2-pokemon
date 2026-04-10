@@ -42,6 +42,7 @@ public sealed class BattleMenuState : GameStateBase
         Locator.Audio.PlayRun();
         _stack.Pop(); // pop this menu
 
+        // Keep the message visible while the delayed fade-out runs.
         _stack.Push(new BattleMessageState(_stack, "You fled successfully!", () => { }, false));
 
         Locator.Tweens.After(0.5f, () =>

@@ -48,15 +48,16 @@ Those parts matter, but they are support systems. The main architecture lessons 
 ```
 gmd2-pokemon/
 ├── GMDCore/               # Reusable engine framework (no game logic)
-│   ├── Core.cs            # XNA Game subclass — window, loop, scaling, Pixel texture
+│   ├── Core.cs            # MonoGame Game subclass — input, letterboxing, Pixel texture
 │   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, TileMap, BitmapFont, …
 │   ├── GUI/               # Panel, ProgressBar
 │   ├── States/            # GameStateBase, StateStack
 │   └── Tweening/          # TweenManager, ITweenTask
 ├── Pokemon/               # Game-specific code
 │   ├── Game1.cs           # Top-level game; owns the StateStack
+│   ├── GameAssets.cs      # Shared fonts/textures registered in the locator
 │   ├── GameSettings.cs    # All magic numbers in one place
-│   ├── Locator.cs         # Service Locator (TweenManager, IAudio)
+│   ├── Locator.cs         # Service Locator (TweenManager, IAudio, GameAssets)
 │   ├── Audio/             # IAudio, NullAudio, SoundManager
 │   ├── Definitions/       # ContentLoader (JSON + species data → textures/animations)
 │   ├── Entities/          # Direction, Entity, Player, AnimationKeys
@@ -126,7 +127,7 @@ protected override void UpdateGame(GameTime gameTime)
 }
 ```
 
-`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into the window. This is a very common pixel-art approach because it keeps gameplay drawing simple and avoids tile seam artifacts that can appear when every sprite is scaled individually.
+`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into a centered destination rectangle in the window.
 
 ```csharp
 // Game1.cs
@@ -136,7 +137,7 @@ StateStack.Draw(SpriteBatch);
 GraphicsDevice.SetRenderTarget(null);
 
 SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-SpriteBatch.Draw(_renderTarget, dest, Color.White);
+SpriteBatch.Draw(_renderTarget, DestinationRectangle, Color.White);
 SpriteBatch.End();
 ```
 
@@ -192,7 +193,7 @@ When the player selects Fight:
            PlayState
            BattleState
            TakeTurnState      (executes the turn, pops itself when done)
-           BattleMessageState (shows "Bulbasaur used Tackle!") ◄── gets Update
+           BattleMessageState (shows "Aardart used Tackle!") ◄── gets Update
 ```
 
 ---
@@ -266,7 +267,7 @@ public static class Locator
 {
     public static ITweenManager Tweens { get; private set; } = new TweenManager();
     public static IAudio        Audio  { get; private set; } = new NullAudio();
-    public static GameAssets    Assets { get; private set; }
+    public static GameAssets    Assets { get; private set; } = null!;
 
     public static void Provide(ITweenManager tweens) => Tweens = tweens;
     public static void Provide(IAudio audio)         => Audio  = audio;
@@ -304,13 +305,13 @@ This means any code that calls `Locator.Audio` before the service is registered 
 Registration happens in `Game1.LoadContent`:
 
 ```csharp
-var audio = new SoundManager();
-audio.LoadContent(Content);
-Locator.Provide(audio);
-
 Locator.Provide(new GameAssets(
     smallFont, mediumFont, largeFont,
     tileAtlas, entityAtlas, cursorTex, shadowTex));
+
+var audio = new SoundManager();
+audio.LoadContent(Content);
+Locator.Provide(audio);
 ```
 
 ---
@@ -327,7 +328,7 @@ Tweens are lightweight, time-based property animations managed by `TweenManager`
 // Slide the player sprite from off-screen to its battle position
 Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     .Add(v => PlayerSprite.X   = v, startX, targetX)
-    .Add(v => _playerCircleX   = v, startCircle, targetCircle)
+    .Add(v => _playerShadowX   = v, startShadowX, targetShadowX)
     .Finish(() => ShowStartingDialogue());
 ```
 
@@ -336,7 +337,7 @@ Multiple properties tween in parallel within one group. `.Finish` fires once whe
 ### `After` — fire a callback after a delay
 
 ```csharp
-Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
+Locator.Tweens.After(move.PauseBeforeAttack, () =>
 {
     // ... begin the tackle animation
 });
@@ -487,8 +488,8 @@ Owns the battle scene: two `BattleSprite` instances, three `ProgressBar` widgets
 Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     .Add(v => PlayerSprite.X   = v, PlayerSprite.X,   32f)
     .Add(v => OpponentSprite.X = v, OpponentSprite.X, GameSettings.VirtualWidth - 96f)
-    .Add(v => _playerCircleX   = v, _playerCircleX,   66f)
-    .Add(v => _opponentCircleX = v, _opponentCircleX, GameSettings.VirtualWidth - 70f)
+    .Add(v => _playerShadowX   = v, _playerShadowX,   66f)
+    .Add(v => _opponentShadowX = v, _opponentShadowX, GameSettings.VirtualWidth - 70f)
     .Finish(() =>
     {
         RenderHealthBars = true;
@@ -570,10 +571,14 @@ for (int i = 0; i < 3; i++) if (rng.Next(1, 7) <= AttackIV)  { Attack++;  atkGai
 
 ```csharp
 // Mon.cs
-public int CalcDamageTo(Mon defender) => Math.Max(1, Attack - defender.Defense);
+public int CalcDamageTo(Mon defender, Move move)
+{
+    int damage = (Attack * move.BasePower / 10) - defender.Defense;
+    return Math.Max(1, damage);
+}
 ```
 
-Attack minus Defense, minimum 1. Simple enough for an educational project but already separated into a method on the model class — the battle system calls it without knowing the formula.
+Attack power scaled by move power minus Defense, minimum 1. Simple enough for an educational project but already separated into a method on the model class — the battle system calls it without knowing the formula.
 
 ### Experience and Levelling Up
 
@@ -623,11 +628,11 @@ The rule is: **content lives in JSON, behaviour lives in C#**.
 ```json
 [
   {
-    "name": "Bulbasaur",
-    "baseHp": 10, "baseAttack": 5, "baseDefense": 4, "baseSpeed": 3,
-    "hpIV": 3, "attackIV": 3, "defenseIV": 2, "speedIV": 2,
-    "battleSpriteFront": "images/pokemon/bulbasaur_front",
-    "battleSpriteBack":  "images/pokemon/bulbasaur_back"
+    "name": "Aardart",
+    "baseHp": 14, "baseAttack": 9, "baseDefense": 5, "baseSpeed": 6,
+    "hpIV": 3, "attackIV": 4, "defenseIV": 2, "speedIV": 3,
+    "battleSpriteFront": "images/pokemon/aardart-front",
+    "battleSpriteBack":  "images/pokemon/aardart-back"
   },
   ...
 ]
