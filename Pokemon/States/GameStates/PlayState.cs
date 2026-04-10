@@ -21,8 +21,8 @@ public sealed class PlayState : GameStateBase
 
     public override void Enter()
     {
-        var player = new Player(Game1.EntityAtlas);
-        _level = new Level(player, Game1.TileAtlas);
+        var player = new Player(Locator.Assets.EntityAtlas);
+        _level = new Level(player, Locator.Assets.TileAtlas);
 
         player.ChangeState(new PlayerIdleState(player, _level, _stack));
 

@@ -9,8 +9,8 @@ namespace GMDCore;
 
 public class Core : Game
 {
-    private int _virtualWidth;
-    private int _virtualHeight;
+    private readonly int _virtualWidth;
+    private readonly int _virtualHeight;
     protected GraphicsDeviceManager Graphics;
     protected Matrix ScreenScaleMatrix;
     public SpriteBatch SpriteBatch { get; set; }
@@ -45,15 +45,21 @@ public class Core : Game
         base.Initialize();
     }
 
-    protected override void Update(GameTime gameTime)
+    // The engine owns the per-frame order: input first, then game logic.
+    // Derived games override UpdateGame instead of Update so they always see
+    // the newest input snapshot.
+    protected sealed override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
         Input.Update();
+        UpdateGame(gameTime);
 
         base.Update(gameTime);
     }
+
+    protected virtual void UpdateGame(GameTime gameTime) { }
 
     protected override void Draw(GameTime gameTime)
     {

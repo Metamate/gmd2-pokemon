@@ -18,7 +18,7 @@ public sealed class DialogueState : GameStateBase
     {
         _stack   = stack;
         _onClose = onClose ?? (() => { });
-        _textbox = new Textbox(6, 6, GameSettings.VirtualWidth - 12, 64, text, Game1.SmallFont);
+        _textbox = new Textbox(6, 6, GameSettings.VirtualWidth - 12, 64, text, Locator.Assets.SmallFont);
     }
 
     public override void Update(GameTime gameTime)

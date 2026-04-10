@@ -52,7 +52,7 @@ public sealed class TakeTurnState : GameStateBase
 
     public override void Enter() =>
         ExecuteAttack(_firstPokemon, _secondPokemon, Move.Tackle, _firstSprite, _secondSprite,
-                      _firstBar, _secondBar, OnFirstAttackComplete);
+                      _secondBar, OnFirstAttackComplete);
 
     // ---- Attack sequence ----
 
@@ -62,7 +62,7 @@ public sealed class TakeTurnState : GameStateBase
         if (CheckDeaths()) { _stack.Pop(); return; }
 
         ExecuteAttack(_secondPokemon, _firstPokemon, Move.Tackle, _secondSprite, _firstSprite,
-                      _secondBar, _firstBar, OnSecondAttackComplete);
+                      _firstBar, OnSecondAttackComplete);
     }
 
     private void OnSecondAttackComplete()
@@ -81,7 +81,7 @@ public sealed class TakeTurnState : GameStateBase
     // current one finishes.
     private void ExecuteAttack(Mon attacker, Mon defender, Move move,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
-                                ProgressBar attackerBar, ProgressBar defenderBar,
+                                ProgressBar defenderBar,
                                 Action onEnd)
     {
         // Show the attack message (canInput: false keeps it up during the animation)

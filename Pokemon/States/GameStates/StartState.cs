@@ -89,22 +89,22 @@ public sealed class StartState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BgColor);
 
-        spriteBatch.Draw(Game1.ShadowTex,
+        spriteBatch.Draw(Locator.Assets.ShadowTex,
             new Vector2(GameSettings.VirtualWidth / 2f - 72, GameSettings.VirtualHeight / 2f + 4),
             Color.White);
 
         if (_currentSprite != null)
             spriteBatch.Draw(_currentSprite, new Vector2(_spriteX, _spriteY), Color.White);
 
-        var titleSize    = Game1.LargeFont.MeasureString("VIAMon!");
-        var subtitleSize = Game1.MediumFont.MeasureString("Press Enter");
+        var titleSize    = Locator.Assets.LargeFont.MeasureString("VIAMon!");
+        var subtitleSize = Locator.Assets.MediumFont.MeasureString("Press Enter");
 
-        Game1.LargeFont.Draw(spriteBatch, "VIAMon!",
+        Locator.Assets.LargeFont.Draw(spriteBatch, "VIAMon!",
             new Vector2(GameSettings.VirtualWidth / 2f - titleSize.X / 2f,
                         GameSettings.VirtualHeight / 2f - 72f),
             TitleColor);
 
-        Game1.MediumFont.Draw(spriteBatch, "Press Enter",
+        Locator.Assets.MediumFont.Draw(spriteBatch, "Press Enter",
             new Vector2(GameSettings.VirtualWidth / 2f - subtitleSize.X / 2f,
                         GameSettings.VirtualHeight / 2f + 68f),
             TitleColor);

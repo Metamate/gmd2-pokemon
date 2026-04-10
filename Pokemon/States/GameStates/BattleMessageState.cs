@@ -24,7 +24,7 @@ public sealed class BattleMessageState : GameStateBase
         var txtPos = Layout.GetPosition(Anchor.BottomLeft, GameSettings.VirtualWidth, 64);
         _textbox  = new Textbox(txtPos.X, txtPos.Y,
                                 GameSettings.VirtualWidth, 64,
-                                message, Game1.MediumFont);
+                                message, Locator.Assets.MediumFont);
     }
 
     public override void Update(GameTime gameTime)

@@ -17,7 +17,6 @@ namespace Pokemon.States.GameStates;
 public sealed class BattleState : GameStateBase
 {
     private readonly StateStack _stack;
-    private readonly Player     _player;
 
     public  Opponent     WildOpponent   { get; }
     public  BattleSprite PlayerSprite   { get; private set; }
@@ -49,7 +48,6 @@ public sealed class BattleState : GameStateBase
 
     public BattleState(Player player, StateStack stack)
     {
-        _player      = player;
         _stack       = stack;
         WildOpponent = Opponent.CreateWild();
 
@@ -131,8 +129,8 @@ public sealed class BattleState : GameStateBase
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
-        spriteBatch.Draw(Game1.ShadowTex, new Vector2(_opponentShadowX - ShadowRx, OpponentShadowY - ShadowRy), Color.White);
-        spriteBatch.Draw(Game1.ShadowTex, new Vector2(_playerShadowX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
+        spriteBatch.Draw(Locator.Assets.ShadowTex, new Vector2(_opponentShadowX - ShadowRx, OpponentShadowY - ShadowRy), Color.White);
+        spriteBatch.Draw(Locator.Assets.ShadowTex, new Vector2(_playerShadowX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
 
         PlayerSprite.Draw(spriteBatch);
         OpponentSprite.Draw(spriteBatch);
@@ -143,12 +141,12 @@ public sealed class BattleState : GameStateBase
             OpponentHealthBar.Draw(spriteBatch);
             PlayerExpBar.Draw(spriteBatch);
 
-            Game1.SmallFont.Draw(spriteBatch,
+            Locator.Assets.SmallFont.Draw(spriteBatch,
                 $"LV {PlayerPokemon.Level}",
                 new Vector2(PlayerHealthBar.X, PlayerHealthBar.Y - 10),
                 Color.Black);
 
-            Game1.SmallFont.Draw(spriteBatch,
+            Locator.Assets.SmallFont.Draw(spriteBatch,
                 $"LV {OpponentPokemon.Level}",
                 new Vector2(OpponentHealthBar.X, OpponentHealthBar.Y + 8),
                 Color.Black);

@@ -26,8 +26,8 @@ public sealed class BattleMenuState : GameStateBase
                 new("Fight", OnFightSelected),
                 new("Run",   OnRunSelected)
             },
-            Game1.SmallFont,
-            Game1.CursorTex);
+            Locator.Assets.SmallFont,
+            Locator.Assets.CursorTex);
     }
 
     private void OnFightSelected()

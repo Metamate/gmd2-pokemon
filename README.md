@@ -80,15 +80,22 @@ Any class can draw a filled rectangle by calling `spriteBatch.Draw(Core.Pixel, r
 
 ### Layer 2 — `Game1` (`Pokemon/Game1.cs`)
 
-`Game1` updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
+`Core` refreshes input first, then hands control to `Game1`, which updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
 
 ```csharp
+// Core.cs
+protected sealed override void Update(GameTime gameTime)
+{
+    Input.Update();                  // gameplay reads fresh input every frame
+    UpdateGame(gameTime);
+    base.Update(gameTime);
+}
+
 // Game1.cs
-protected override void Update(GameTime gameTime)
+protected override void UpdateGame(GameTime gameTime)
 {
     Locator.Tweens.Update(gameTime);   // tweens fire first
     StateStack.Update(gameTime);
-    base.Update(gameTime);
 }
 ```
 
@@ -166,11 +173,11 @@ The GUI layer provides reusable widgets for menus, dialogue, and stat displays.
 A pixel-perfect bitmap font backed by a pre-generated glyph atlas. The atlas covers printable ASCII (32–126) in 16-column rows. Per-character advance widths are stored in a static table, giving the font variable-width character spacing without runtime font rendering.
 
 ```csharp
-Game1.MediumFont.Draw(spriteBatch, "Hello!", position, Color.White);
-Vector2 size = Game1.MediumFont.MeasureString("Hello!");
+Locator.Assets.MediumFont.Draw(spriteBatch, "Hello!", position, Color.White);
+Vector2 size = Locator.Assets.MediumFont.MeasureString("Hello!");
 ```
 
-Three sizes (`SmallFont`, `MediumFont`, `LargeFont`) are loaded once in `Game1` and accessed as statics.
+Three sizes (`SmallFont`, `MediumFont`, `LargeFont`) are loaded once in `Game1` and registered in `Locator.Assets`.
 
 The font images and the character-width data hardcoded in `BitmapFont.cs` were not written by hand — they were produced by `Tools/GenerateFontAtlas.py`. The script takes a `.ttf` font file, renders each character into a spritesheet, and prints the width of every character so the font knows how far to advance after drawing each one. If you ever want to use a different font, run the script and copy the printed widths back into `BitmapFont.cs`.
 
@@ -215,15 +222,17 @@ A common approach to audio in games is a static singleton (`SoundManager.PlayMus
 // Pokemon/Locator.cs
 public static class Locator
 {
-    public static TweenManager Tweens { get; private set; } = new TweenManager();
-    public static IAudio        Audio { get; private set; } = new NullAudio();
+    public static ITweenManager Tweens { get; private set; } = new TweenManager();
+    public static IAudio        Audio  { get; private set; } = new NullAudio();
+    public static GameAssets    Assets { get; private set; }
 
-    public static void Provide(TweenManager tweens) => Tweens = tweens;
-    public static void Provide(IAudio audio)        => Audio  = audio;
+    public static void Provide(ITweenManager tweens) => Tweens = tweens;
+    public static void Provide(IAudio audio)         => Audio  = audio;
+    public static void Provide(GameAssets assets)    => Assets = assets;
 }
 ```
 
-Any class calls `Locator.Audio.PlayHit()` or `Locator.Tweens.After(1f, callback)` without knowing or caring what the concrete implementation is.
+Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the teaching example on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
 
 ### The Null Object
 
@@ -248,6 +257,10 @@ Registration happens in `Game1.LoadContent`:
 var audio = new SoundManager();
 audio.LoadContent(Content);
 Locator.Provide(audio);
+
+Locator.Provide(new GameAssets(
+    smallFont, mediumFont, largeFont,
+    tileAtlas, entityAtlas, cursorTex, shadowTex));
 ```
 
 ---
@@ -313,11 +326,12 @@ public float Y    { get; set; }
 
 ### `EntityWalkState` — `Pokemon/States/EntityStates/EntityWalkState.cs`
 
-`Enter` is called once when the walk begins. `AttemptMove` checks whether the target tile is within the map boundary, then:
+`Enter` is called once when the walk begins. `AttemptMove` checks whether the target tile is within the map boundary, lets subclasses inspect the destination tile, then:
 
-1. Updates `MapX` / `MapY` to the target tile immediately.
-2. Schedules a tween that moves `X` / `Y` from the current pixel position to the new pixel position over `WalkTweenDuration` seconds.
-3. Calls `OnMovementComplete` when the tween finishes.
+1. Optionally reacts to the destination tile before movement is committed.
+2. Updates `MapX` / `MapY` to the target tile immediately.
+3. Schedules a tween that moves `X` / `Y` from the current pixel position to the new pixel position over `WalkTweenDuration` seconds.
+4. Calls `OnMovementComplete` when the tween finishes.
 
 ```csharp
 float targetX = toX * GameSettings.TileSize;
@@ -382,14 +396,14 @@ The overworld is two `TileMap` layers (base terrain and tall grass) plus the pla
 
 ### Random Encounters
 
-Random encounters are checked in `PlayerWalkState.Enter` — at the start of each tile step, before movement begins:
+Random encounters are checked against the **destination tile** in `PlayerWalkState.BeforeMove`, so the code matches the game rule students will expect: stepping **into** tall grass can trigger a battle.
 
 ```csharp
-private bool CheckForEncounter()
+protected override bool BeforeMove(int toX, int toY)
 {
-    int tileId = Level.GrassLayer.GetTile(_player.MapX, _player.MapY);
-    if (tileId != GameSettings.TileTallGrass) return false;
-    if (!RollEncounter()) return false;
+    int tileId = Level.GrassLayer.GetTile(toX, toY);
+    if (tileId != GameSettings.TileTallGrass) return true;
+    if (!RollEncounter()) return true;
 
     // freeze the player, pause music, fade to battle
     Locator.Audio.PauseFieldMusic();
@@ -402,7 +416,7 @@ private bool CheckForEncounter()
             _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
         }));
 
-    return true;
+    return false;
 }
 ```
 
