@@ -159,9 +159,8 @@ public sealed class TakeTurnState : GameStateBase
     private void OnFadeToBlackComplete()
     {
         _battle.PlayerPokemon.CurrentHp = _battle.PlayerPokemon.Hp;
-        Locator.Audio.StopMusic();
+        _stack.Pop(); // pop BattleState (Exit() stops music)
         Locator.Audio.PlayFieldMusic();
-        _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 1f, 0f, OnFadeFromBlackComplete));
     }
 
@@ -229,9 +228,8 @@ public sealed class TakeTurnState : GameStateBase
 
     private void OnFadeToWhiteComplete()
     {
-        Locator.Audio.StopMusic();
+        _stack.Pop(); // pop BattleState (Exit() stops music)
         Locator.Audio.PlayFieldMusic();
-        _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
     }
 

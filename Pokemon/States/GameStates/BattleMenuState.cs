@@ -46,9 +46,9 @@ public sealed class BattleMenuState : GameStateBase
         {
             _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 0f, 1f, () =>
             {
-                Locator.Audio.PlayFieldMusic();
                 _stack.Pop(); // pop BattleMessageState
-                _stack.Pop(); // pop BattleState
+                _stack.Pop(); // pop BattleState (Exit() stops music)
+                Locator.Audio.PlayFieldMusic();
                 _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
             }));
         });

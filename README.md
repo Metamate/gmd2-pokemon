@@ -391,8 +391,8 @@ private bool CheckForEncounter()
     if (tileId != GameSettings.TileTallGrass) return false;
     if (!RollEncounter()) return false;
 
-    // freeze the player, stop music, fade to battle
-    Locator.Audio.StopMusic();
+    // freeze the player, pause music, fade to battle
+    Locator.Audio.PauseFieldMusic();
     Locator.Audio.PlayBattleMusic();
 
     _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 0f, 1f,

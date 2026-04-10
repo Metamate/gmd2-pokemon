@@ -6,6 +6,7 @@ public interface IAudio
     void PlayFieldMusic();
     void PlayBattleMusic();
     void PlayVictoryMusic();
+    void PauseFieldMusic();
     void StopMusic();
 
     void PlayBlip();

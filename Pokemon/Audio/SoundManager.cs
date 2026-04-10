@@ -46,6 +46,7 @@ public sealed class SoundManager : IAudio
     public void PlayBattleMusic()  => PlayMusic(_battleMusic);
     public void PlayIntroMusic()   => PlayMusic(_introMusic);
     public void PlayVictoryMusic() => PlayMusic(_victoryMusic);
+    public void PauseFieldMusic()  => MediaPlayer.Pause();
     public void StopMusic()        => MediaPlayer.Stop();
 
     public void PlayBlip()    => _blip?.Play();

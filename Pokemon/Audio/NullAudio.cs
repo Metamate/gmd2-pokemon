@@ -8,6 +8,7 @@ public sealed class NullAudio : IAudio
     public void PlayFieldMusic()  { }
     public void PlayBattleMusic() { }
     public void PlayVictoryMusic(){ }
+    public void PauseFieldMusic() { }
     public void StopMusic()       { }
 
     public void PlayBlip()    { }
