@@ -55,7 +55,7 @@ public sealed class Mon
 
     // Rolls stats for one level. Each stat's IV (1–5) is tested 3 times against a d6:
     // if the roll is ≤ IV the stat increases by 1. Returns the four increases.
-    public (int hpGain, int atkGain, int defGain, int spdGain) RollStatsLevelUp()
+    private (int hpGain, int atkGain, int defGain, int spdGain) RollStatsLevelUp()
     {
         int hpGain = 0, atkGain = 0, defGain = 0, spdGain = 0;
         var rng = Random.Shared;
@@ -83,8 +83,13 @@ public sealed class Mon
     // Restore HP to full.
     public void Heal() => CurrentHp = Hp;
 
-    // Damage this Pokemon deals to a defender: attack minus defense, minimum 1.
-    public int CalcDamageTo(Mon defender) => Math.Max(1, Attack - defender.Defense);
+    // Damage this Pokemon deals to a defender using a specific move.
+    public int CalcDamageTo(Mon defender, Move move)
+    {
+        // Simple damage formula: (Attack * MovePower / 10) - Defense, minimum 1
+        int damage = (Attack * move.BasePower / 10) - defender.Defense;
+        return Math.Max(1, damage);
+    }
 
     // Exp reward earned when this Pokemon is defeated.
     public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;

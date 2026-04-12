@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 using Pokemon.GUI;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -16,16 +16,16 @@ public sealed class BattleMessageState : GameStateBase
     private readonly Action     _onClose;
     private readonly bool       _canInput;
 
-    public BattleMessageState(Core game, StateStack stack, string message,
+    public BattleMessageState(StateStack stack, string message,
                                Action onClose, bool canInput = true)
-        : base(game)
     {
         _stack    = stack;
         _onClose  = onClose;
         _canInput = canInput;
-        _textbox  = new Textbox(0, GameSettings.VirtualHeight - 64,
+        var txtPos = Layout.GetPosition(Anchor.BottomLeft, GameSettings.VirtualWidth, 64);
+        _textbox  = new Textbox(txtPos.X, txtPos.Y,
                                 GameSettings.VirtualWidth, 64,
-                                message, Game1.MediumFont);
+                                message, Locator.Assets.MediumFont);
     }
 
     public override void Update(GameTime gameTime)
@@ -43,7 +43,7 @@ public sealed class BattleMessageState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         _textbox.Draw(spriteBatch);
         spriteBatch.End();
     }

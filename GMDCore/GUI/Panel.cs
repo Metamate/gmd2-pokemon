@@ -20,7 +20,7 @@ public sealed class Panel
         X = x; Y = y; Width = width; Height = height;
     }
 
-    public void Toggle() => Visible = !Visible;
+    public void Hide() => Visible = false;
 
     public void Draw(SpriteBatch spriteBatch)
     {

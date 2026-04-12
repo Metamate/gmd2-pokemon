@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Pokemon;
 using Pokemon.Entities;
 using Pokemon.Input;
@@ -11,7 +10,8 @@ using GMDCore.States;
 namespace Pokemon.States.PlayerStates;
 
 // Moves the player one tile, then checks whether to continue walking.
-// On entering a tall-grass tile there is a 1-in-10 chance of a random encounter.
+// Before committing the move, the destination tile is checked for tall grass.
+// Entering a tall-grass tile has a 1-in-10 chance of a random encounter.
 public sealed class PlayerWalkState : EntityWalkState
 {
     private readonly Player     _player;
@@ -24,21 +24,15 @@ public sealed class PlayerWalkState : EntityWalkState
         _stateStack = stateStack;
     }
 
-    public override void Enter()
-    {
-        if (CheckForEncounter()) return;
-        AttemptMove();
-    }
-
     // Returns true 1-in-EncounterChance times.
     private static bool RollEncounter()
         => System.Random.Shared.Next(GameSettings.EncounterChance) == 0;
 
-    private bool CheckForEncounter()
+    protected override bool BeforeMove(Point destination)
     {
-        int tileId = Level.GrassLayer.GetTile(_player.MapX, _player.MapY);
-        if (tileId != GameSettings.TileTallGrass) return false;
-        if (!RollEncounter()) return false;
+        int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
+        if (tileId != GameSettings.TileTallGrass) return true;
+        if (!RollEncounter()) return true;
 
         // Freeze player in place (PlayerIdleState so input is re-enabled when battle ends)
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
@@ -54,7 +48,7 @@ public sealed class PlayerWalkState : EntityWalkState
                 _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
             }));
 
-        return true;
+        return false;
     }
 
     protected override void OnMovementComplete()

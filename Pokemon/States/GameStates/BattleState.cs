@@ -5,19 +5,20 @@ using Pokemon.Battle;
 using Pokemon.Definitions;
 using Pokemon.Entities;
 using GMDCore.GUI;
+using Pokemon.GUI;
 using Pokemon.Mons;
 using GMDCore.States;
 using GMDCore;
-using GMDCore.Graphics;
 
 namespace Pokemon.States.GameStates;
 
-// The main battle screen. Manages the two battle sprites, health bars, and EXP bar.
-// On first update the Pokemon slide in from the screen edges, then starting dialogue is shown.
+// The main battle screen. It owns the battle scene itself: sprites, bars, panel,
+// and the opening "wild monster appeared" sequence.
+// Other battle-related states (menu, messages, turn resolution) are pushed on top
+// of this one so the scene keeps drawing underneath them.
 public sealed class BattleState : GameStateBase
 {
     private readonly StateStack _stack;
-    private readonly Player     _player;
 
     public  Opponent     WildOpponent   { get; }
     public  BattleSprite PlayerSprite   { get; private set; }
@@ -34,25 +35,21 @@ public sealed class BattleState : GameStateBase
     public  bool RenderHealthBars { get; set; }
 
     // Shadow ellipse x-positions (tweened during slide-in)
-    private float _playerCircleX;
-    private float _opponentCircleX;
+    private float _playerShadowX;
+    private float _opponentShadowX;
 
-    private readonly Panel    _bottomPanel;
-    private readonly Texture2D _shadowTex;
+    private readonly Panel _bottomPanel;
 
-    private const int ShadowRx          = 72;
-    private const int ShadowRy          = 24;
-    private const int OpponentShadowY   = 60;
+    private const int ShadowRx        = 72;
+    private const int ShadowRy        = 24;
+    private const int OpponentShadowY = 60;
 
-    private static readonly Color BattleBg    = new(214, 214, 214);
-    private static readonly Color ShadowColor = new(45, 184, 45, 124);
-    private static readonly Color HpColor     = new(189, 32, 32);
-    private static readonly Color ExpColor    = new(32, 32, 189);
+    private static readonly Color BattleBg = new(214, 214, 214);
+    private static readonly Color HpColor  = new(189, 32, 32);
+    private static readonly Color ExpColor = new(32, 32, 189);
 
     public BattleState(Player player, StateStack stack)
-        : base(Game1.Current)
     {
-        _player      = player;
         _stack       = stack;
         WildOpponent = Opponent.CreateWild();
 
@@ -66,25 +63,26 @@ public sealed class BattleState : GameStateBase
         PlayerSprite   = new BattleSprite(playerTex,  -64f, GameSettings.VirtualHeight - 128f);
         OpponentSprite = new BattleSprite(opponentTex, GameSettings.VirtualWidth, 8f);
 
-        _playerCircleX   = -68f;
-        _opponentCircleX =  GameSettings.VirtualWidth + 32f;
+        _playerShadowX   = -68f;
+        _opponentShadowX =  GameSettings.VirtualWidth + 32f;
 
+        var pBarPos = Layout.GetPosition(Anchor.BottomRight, 152, 6, -8, -74);
         PlayerHealthBar = new ProgressBar(
-            GameSettings.VirtualWidth - 160, GameSettings.VirtualHeight - 80, 152, 6,
+            pBarPos.X, pBarPos.Y, 152, 6,
             HpColor, PlayerPokemon.CurrentHp, PlayerPokemon.Hp);
 
+        var oBarPos = Layout.GetPosition(Anchor.TopLeft, 152, 6, 8, 8);
         OpponentHealthBar = new ProgressBar(
-            8, 8, 152, 6,
+            oBarPos.X, oBarPos.Y, 152, 6,
             HpColor, OpponentPokemon.CurrentHp, OpponentPokemon.Hp);
 
+        var expBarPos = Layout.GetPosition(Anchor.BottomRight, 152, 6, -8, -67);
         PlayerExpBar = new ProgressBar(
-            GameSettings.VirtualWidth - 160, GameSettings.VirtualHeight - 73, 152, 6,
+            expBarPos.X, expBarPos.Y, 152, 6,
             ExpColor, PlayerPokemon.CurrentExp, PlayerPokemon.ExpToLevel);
 
-        _bottomPanel = new Panel(0, GameSettings.VirtualHeight - 64,
-                                 GameSettings.VirtualWidth, 64);
-
-        _shadowTex = TextureFactory.CreateEllipse(Game1.Current.GraphicsDevice, ShadowRx, ShadowRy, ShadowColor);
+        var panelPos = Layout.GetPosition(Anchor.BottomLeft, GameSettings.VirtualWidth, 64);
+        _bottomPanel = new Panel(panelPos.X, panelPos.Y, GameSettings.VirtualWidth, 64);
     }
 
     public override void Exit()
@@ -104,8 +102,8 @@ public sealed class BattleState : GameStateBase
         Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
             .Add(v => PlayerSprite.X    = v, PlayerSprite.X,   32f)
             .Add(v => OpponentSprite.X  = v, OpponentSprite.X, GameSettings.VirtualWidth - 96f)
-            .Add(v => _playerCircleX    = v, _playerCircleX,   66f)
-            .Add(v => _opponentCircleX  = v, _opponentCircleX, GameSettings.VirtualWidth - 70f)
+            .Add(v => _playerShadowX    = v, _playerShadowX,   66f)
+            .Add(v => _opponentShadowX  = v, _opponentShadowX, GameSettings.VirtualWidth - 70f)
             .Finish(() =>
             {
                 RenderHealthBars = true;
@@ -115,26 +113,28 @@ public sealed class BattleState : GameStateBase
 
     private void ShowStartingDialogue()
     {
-        _stack.Push(new BattleMessageState(Game, _stack,
+        // The battle intro is itself a small state-stack script:
+        // message -> message -> battle menu.
+        _stack.Push(new BattleMessageState(_stack,
             $"A wild {OpponentPokemon.Name} appeared!",
             () =>
             {
-                _stack.Push(new BattleMessageState(Game, _stack,
+                _stack.Push(new BattleMessageState(_stack,
                     $"Go, {PlayerPokemon.Name}!",
-                    () => _stack.Push(new BattleMenuState(Game, _stack, this))));
+                    () => _stack.Push(new BattleMenuState(_stack, this))));
             }));
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
 
         spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             BattleBg);
 
-        spriteBatch.Draw(_shadowTex, new Vector2(_opponentCircleX - ShadowRx, OpponentShadowY - ShadowRy), Color.White);
-        spriteBatch.Draw(_shadowTex, new Vector2(_playerCircleX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
+        spriteBatch.Draw(Locator.Assets.ShadowTex, new Vector2(_opponentShadowX - ShadowRx, OpponentShadowY - ShadowRy), Color.White);
+        spriteBatch.Draw(Locator.Assets.ShadowTex, new Vector2(_playerShadowX  - ShadowRx, GameSettings.VirtualHeight - 64 - ShadowRy), Color.White);
 
         PlayerSprite.Draw(spriteBatch);
         OpponentSprite.Draw(spriteBatch);
@@ -145,12 +145,12 @@ public sealed class BattleState : GameStateBase
             OpponentHealthBar.Draw(spriteBatch);
             PlayerExpBar.Draw(spriteBatch);
 
-            Game1.SmallFont.Draw(spriteBatch,
+            Locator.Assets.SmallFont.Draw(spriteBatch,
                 $"LV {PlayerPokemon.Level}",
                 new Vector2(PlayerHealthBar.X, PlayerHealthBar.Y - 10),
                 Color.Black);
 
-            Game1.SmallFont.Draw(spriteBatch,
+            Locator.Assets.SmallFont.Draw(spriteBatch,
                 $"LV {OpponentPokemon.Level}",
                 new Vector2(OpponentHealthBar.X, OpponentHealthBar.Y + 8),
                 Color.Black);
@@ -160,5 +160,4 @@ public sealed class BattleState : GameStateBase
 
         spriteBatch.End();
     }
-
 }

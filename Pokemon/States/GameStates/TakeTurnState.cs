@@ -1,17 +1,17 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Pokemon;
 using Pokemon.Battle;
 using GMDCore.GUI;
 using Pokemon.Mons;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
 // Executes one full battle round: the faster Pokemon attacks first, then the slower one.
-// After each hit the relevant health bar is tweened. Handles faint and victory outcomes.
+// This state does not draw anything itself. Its whole job is sequencing:
+// show messages, run tweens, apply damage, then hand control back to the menu
+// or to a victory/faint path.
 public sealed class TakeTurnState : GameStateBase
 {
     private readonly StateStack  _stack;
@@ -27,8 +27,7 @@ public sealed class TakeTurnState : GameStateBase
     // Stored between OnVictoryMessageClosed and OnExpTweenComplete.
     private int _earnedExp;
 
-    public TakeTurnState(Core game, StateStack stack, BattleState battle)
-        : base(game)
+    public TakeTurnState(StateStack stack, BattleState battle)
     {
         _stack  = stack;
         _battle = battle;
@@ -54,8 +53,8 @@ public sealed class TakeTurnState : GameStateBase
     }
 
     public override void Enter() =>
-        ExecuteAttack(_firstPokemon, _secondPokemon, _firstSprite, _secondSprite,
-                      _firstBar, _secondBar, OnFirstAttackComplete);
+        ExecuteAttack(_firstPokemon, _secondPokemon, Move.Tackle, _firstSprite, _secondSprite,
+                      _secondBar, OnFirstAttackComplete);
 
     // ---- Attack sequence ----
 
@@ -64,8 +63,8 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Pop(); // pop first attack message
         if (CheckDeaths()) { _stack.Pop(); return; }
 
-        ExecuteAttack(_secondPokemon, _firstPokemon, _secondSprite, _firstSprite,
-                      _secondBar, _firstBar, OnSecondAttackComplete);
+        ExecuteAttack(_secondPokemon, _firstPokemon, Move.Tackle, _secondSprite, _firstSprite,
+                      _firstBar, OnSecondAttackComplete);
     }
 
     private void OnSecondAttackComplete()
@@ -73,8 +72,9 @@ public sealed class TakeTurnState : GameStateBase
         _stack.Pop(); // pop second attack message
         if (CheckDeaths()) { _stack.Pop(); return; }
 
+        // No one fainted, so this turn is over and the player chooses again.
         _stack.Pop(); // pop TakeTurnState itself
-        _stack.Push(new BattleMenuState(Game, _stack, _battle));
+        _stack.Push(new BattleMenuState(_stack, _battle));
     }
 
     // Plays the full attack animation sequence for one Pokemon attacking another.
@@ -82,32 +82,32 @@ public sealed class TakeTurnState : GameStateBase
     // play one after another — this is intentional: tweens don't block, so the
     // only way to say "do this, then that" is to start the next thing when the
     // current one finishes.
-    private void ExecuteAttack(Mon attacker, Mon defender,
+    private void ExecuteAttack(Mon attacker, Mon defender, Move move,
                                 BattleSprite attackerSprite, BattleSprite defenderSprite,
-                                ProgressBar attackerBar, ProgressBar defenderBar,
+                                ProgressBar defenderBar,
                                 Action onEnd)
     {
         // Show the attack message (canInput: false keeps it up during the animation)
-        _stack.Push(new BattleMessageState(Game, _stack,
-            $"{attacker.Name} attacks {defender.Name}!", () => { }, canInput: false));
+        _stack.Push(new BattleMessageState(_stack,
+            $"{attacker.Name} used {move.Name}!", () => { }, canInput: false));
 
         // Step 1: pause briefly, then lunge toward the opponent
-        Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
+        Locator.Tweens.After(move.PauseBeforeAttack, () =>
         {
             Locator.Audio.PlayPowerup();
 
             float originX = attackerSprite.X;
             float nudge   = attackerSprite == _battle.PlayerSprite
-                            ? GameSettings.TackleNudge : -GameSettings.TackleNudge;
+                            ? move.LungeDistance : -move.LungeDistance;
 
-            Locator.Tweens.Tween(GameSettings.TackleDuration)
+            Locator.Tweens.Tween(move.LungeDuration)
                 .Add(v => attackerSprite.X = v, originX, originX + nudge)
                 .Finish(() =>
                 {
                     // Step 2: spring back to the original position
                     Locator.Audio.PlayHit();
 
-                    Locator.Tweens.Tween(GameSettings.TackleDuration)
+                    Locator.Tweens.Tween(move.LungeDuration)
                         .Add(v => attackerSprite.X = v, originX + nudge, originX)
                         .Finish(() =>
                         {
@@ -119,7 +119,7 @@ public sealed class TakeTurnState : GameStateBase
                             {
                                 // Step 4: apply damage and animate the health bar dropping
                                 defenderSprite.Blinking = false;
-                                int dmg = attacker.CalcDamageTo(defender);
+                                int dmg = attacker.CalcDamageTo(defender, move);
                                 float targetHp = Math.Max(0, defender.CurrentHp - dmg);
 
                                 Locator.Tweens.Tween(GameSettings.HpTweenDuration)
@@ -154,7 +154,7 @@ public sealed class TakeTurnState : GameStateBase
     }
 
     private void OnPlayerFainted() =>
-        _stack.Push(new BattleMessageState(Game, _stack, "You fainted!", OnFaintMessageClosed));
+        _stack.Push(new BattleMessageState(_stack, "You fainted!", OnFaintMessageClosed));
 
     private void OnFaintMessageClosed() =>
         _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 0f, 1f, OnFadeToBlackComplete));
@@ -162,14 +162,13 @@ public sealed class TakeTurnState : GameStateBase
     private void OnFadeToBlackComplete()
     {
         _battle.PlayerPokemon.CurrentHp = _battle.PlayerPokemon.Hp;
-        Locator.Audio.StopMusic();
+        _stack.Pop(); // pop BattleState (Exit() stops music)
         Locator.Audio.PlayFieldMusic();
-        _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.Black, GameSettings.FadeDuration, 1f, 0f, OnFadeFromBlackComplete));
     }
 
     private void OnFadeFromBlackComplete() =>
-        _stack.Push(new DialogueState(Game, _stack, "Your Pokemon has been fully restored; try again!"));
+        _stack.Push(new DialogueState(_stack, "Your Pokemon has been fully restored; try again!"));
 
     // ---- Victory path ----
 
@@ -184,13 +183,13 @@ public sealed class TakeTurnState : GameStateBase
     {
         Locator.Audio.StopMusic();
         Locator.Audio.PlayVictoryMusic();
-        _stack.Push(new BattleMessageState(Game, _stack, "Victory!", OnVictoryMessageClosed));
+        _stack.Push(new BattleMessageState(_stack, "Victory!", OnVictoryMessageClosed));
     }
 
     private void OnVictoryMessageClosed()
     {
         _earnedExp = _battle.OpponentPokemon.ExpReward;
-        _stack.Push(new BattleMessageState(Game, _stack,
+        _stack.Push(new BattleMessageState(_stack,
             $"You earned {_earnedExp} experience points!", () => { }, canInput: false));
         Locator.Tweens.After(GameSettings.ExpTweenDelay, StartExpTween);
     }
@@ -216,8 +215,10 @@ public sealed class TakeTurnState : GameStateBase
         {
             Locator.Audio.PlayLevelup();
             _battle.PlayerPokemon.CurrentExp -= _battle.PlayerPokemon.ExpToLevel;
-            _battle.PlayerPokemon.LevelUp();
-            _stack.Push(new BattleMessageState(Game, _stack, "Congratulations! Level Up!", () => FadeToField()));
+            var (hp, atk, def, spd) = _battle.PlayerPokemon.LevelUp();
+            _stack.Push(new BattleMessageState(_stack,
+                $"Level Up! HP+{hp} ATK+{atk} DEF+{def} SPD+{spd}",
+                () => FadeToField()));
         }
         else
         {
@@ -230,9 +231,8 @@ public sealed class TakeTurnState : GameStateBase
 
     private void OnFadeToWhiteComplete()
     {
-        Locator.Audio.StopMusic();
+        _stack.Pop(); // pop BattleState (Exit() stops music)
         Locator.Audio.PlayFieldMusic();
-        _stack.Pop(); // pop BattleState
         _stack.Push(new FadeState(_stack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
     }
 

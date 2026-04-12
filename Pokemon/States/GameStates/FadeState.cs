@@ -20,7 +20,6 @@ public sealed class FadeState : GameStateBase
 
     public FadeState(StateStack stack, Color color, float duration,
                      float fromOpacity, float toOpacity, Action onComplete)
-        : base(Game1.Current)
     {
         _stack   = stack;
         _color   = color;
@@ -37,7 +36,7 @@ public sealed class FadeState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         spriteBatch.Draw(Core.Pixel,
             new Rectangle(0, 0, GameSettings.VirtualWidth, GameSettings.VirtualHeight),
             _color * _opacity);

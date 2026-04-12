@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GMDCore;
 using Pokemon.GUI;
 using GMDCore.States;
-using GMDCore;
 
 namespace Pokemon.States.GameStates;
 
@@ -15,12 +15,11 @@ public sealed class DialogueState : GameStateBase
     private readonly Textbox    _textbox;
     private readonly Action     _onClose;
 
-    public DialogueState(Core game, StateStack stack, string text, Action onClose = null)
-        : base(game)
+    public DialogueState(StateStack stack, string text, Action onClose = null)
     {
         _stack   = stack;
         _onClose = onClose ?? (() => { });
-        _textbox = new Textbox(6, 6, GameSettings.VirtualWidth - 12, 64, text, Game1.SmallFont);
+        _textbox = new Textbox(6, 6, GameSettings.VirtualWidth - 12, 64, text, Locator.Assets.SmallFont);
     }
 
     public override void Update(GameTime gameTime)
@@ -36,7 +35,7 @@ public sealed class DialogueState : GameStateBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Core.BeginDraw(spriteBatch);
         _textbox.Draw(spriteBatch);
         spriteBatch.End();
     }

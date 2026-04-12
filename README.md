@@ -1,8 +1,28 @@
 # Architecture Walkthrough — GMD2 Pokemon
 
-A top-down Pokemon-like built on **MonoGame/XNA** in C#. This document walks through the architecture from the ground up, pointing at relevant source code as it goes.
+A top-down Pokemon-like built on **MonoGame** in C#. This document walks through the architecture from the ground up, pointing at relevant source code as it goes.
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
+
+## Read In This Order
+
+Do not try to understand every file in one pass. A much better path is:
+
+1. `Pokemon/Game1.cs` — see the big picture: load content, create the state stack, update, draw.
+2. `GMDCore/States/StateStack.cs` and `GMDCore/States/GameStateBase.cs` — understand how game flow is layered.
+3. `Pokemon/States/GameStates/PlayState.cs` — see the overworld running as one state.
+4. `Pokemon/Entities/Entity.cs`, `Pokemon/States/EntityStates/EntityWalkState.cs`, and `Pokemon/States/PlayerStates/PlayerWalkState.cs` — understand tile movement and encounters.
+5. `Pokemon/States/GameStates/BattleState.cs`, `Pokemon/States/GameStates/BattleMenuState.cs`, and `Pokemon/States/GameStates/TakeTurnState.cs` — understand the battle loop and how multiple states cooperate.
+6. `Pokemon/Mons/Mon.cs` — understand stats, damage, experience, and leveling.
+
+On a first read, it is completely fine to ignore:
+
+- most of `GMDCore/Graphics`
+- the bitmap font internals
+- audio implementation details
+- the exact tween implementation
+
+Those parts matter, but they are support systems. The main architecture lessons live in the files listed above.
 
 ---
 
@@ -28,15 +48,16 @@ Key concepts covered by this project: a state *stack* for layered game flow, a G
 ```
 gmd2-pokemon/
 ├── GMDCore/               # Reusable engine framework (no game logic)
-│   ├── Core.cs            # Game subclass — window, loop, scaling, Pixel texture
+│   ├── Core.cs            # MonoGame Game subclass — input, letterboxing, Pixel texture
 │   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, TileMap, BitmapFont, …
 │   ├── GUI/               # Panel, ProgressBar
 │   ├── States/            # GameStateBase, StateStack
 │   └── Tweening/          # TweenManager, ITweenTask
 ├── Pokemon/               # Game-specific code
 │   ├── Game1.cs           # Top-level game; owns the StateStack
+│   ├── GameAssets.cs      # Shared fonts/textures registered in the locator
 │   ├── GameSettings.cs    # All magic numbers in one place
-│   ├── Locator.cs         # Service Locator (TweenManager, IAudio)
+│   ├── Locator.cs         # Service Locator (TweenManager, IAudio, GameAssets)
 │   ├── Audio/             # IAudio, NullAudio, SoundManager
 │   ├── Definitions/       # ContentLoader (JSON + species data → textures/animations)
 │   ├── Entities/          # Direction, Entity, Player, AnimationKeys
@@ -55,6 +76,13 @@ gmd2-pokemon/
 ```
 
 The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon` project.
+
+That split is one of the main architecture lessons in the project:
+
+- `GMDCore` is the reusable engine-like layer.
+- `Pokemon` is the game layer built on top of it.
+- If a class talks about Pokemon, grass, battles, or leveling, it belongs in `Pokemon`.
+- If a class could be reused in a different game, it probably belongs in `GMDCore`.
 
 ---
 
@@ -80,29 +108,36 @@ Any class can draw a filled rectangle by calling `spriteBatch.Draw(Core.Pixel, r
 
 ### Layer 2 — `Game1` (`Pokemon/Game1.cs`)
 
-`Game1` updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
+`Core` refreshes input first, then hands control to `Game1`, which updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
 
 ```csharp
+// Core.cs
+protected sealed override void Update(GameTime gameTime)
+{
+    Input.Update();                  // gameplay reads fresh input every frame
+    UpdateGame(gameTime);
+    base.Update(gameTime);
+}
+
 // Game1.cs
-protected override void Update(GameTime gameTime)
+protected override void UpdateGame(GameTime gameTime)
 {
     Locator.Tweens.Update(gameTime);   // tweens fire first
     StateStack.Update(gameTime);
-    base.Update(gameTime);
 }
 ```
 
-`Game1` also renders into a **`RenderTarget2D`** at the virtual resolution before upscaling to the screen with point sampling. This guarantees pixel-perfect output at any window size without requiring a transform matrix on every `SpriteBatch.Begin`.
+`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into a centered destination rectangle in the window.
 
 ```csharp
 // Game1.cs
 GraphicsDevice.SetRenderTarget(_renderTarget);
 GraphicsDevice.Clear(Color.Black);
 StateStack.Draw(SpriteBatch);
-
 GraphicsDevice.SetRenderTarget(null);
+
 SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-SpriteBatch.Draw(_renderTarget, dest, Color.White);
+SpriteBatch.Draw(_renderTarget, DestinationRectangle, Color.White);
 SpriteBatch.End();
 ```
 
@@ -110,11 +145,17 @@ SpriteBatch.End();
 
 ```
 Core.Update
-  └─ Game1.Update
+  └─ Game1.UpdateGame
        ├─ Locator.Tweens.Update        ← tween callbacks may push/pop states
        └─ StateStack.Update
             └─ (top state).Update      ← e.g. PlayState, BattleState, FadeState
 ```
+
+This order matters:
+
+- input must be updated before game code checks keys
+- tweens run before states so finished animations can change state immediately
+- only then does the top state read input and decide what happens next
 
 ---
 
@@ -130,7 +171,7 @@ public void Update(GameTime gameTime) { ... }   // only the top state updates
 public void Draw(SpriteBatch sb)      { ... }   // all states draw, bottom to top
 ```
 
-Only the top state receives `Update` — it has exclusive control of input. All states draw, so underlying states remain visible behind overlays.
+Only the top state receives `Update` — it has exclusive control of input. All states draw, so underlying states remain visible behind overlays. Each state still draws in the same virtual coordinate system through `Core.BeginDraw`; `Game1` handles window scaling afterward by drawing the final render target.
 
 This enables patterns that a single-state machine cannot express:
 
@@ -152,7 +193,7 @@ When the player selects Fight:
            PlayState
            BattleState
            TakeTurnState      (executes the turn, pops itself when done)
-           BattleMessageState (shows "Bulbasaur used Tackle!") ◄── gets Update
+           BattleMessageState (shows "Aardart used Tackle!") ◄── gets Update
 ```
 
 ---
@@ -161,16 +202,25 @@ When the player selects Fight:
 
 The GUI layer provides reusable widgets for menus, dialogue, and stat displays.
 
+The guiding idea is to build a few tiny widgets and then combine them:
+
+- `Panel` draws a box
+- `Textbox` combines a `Panel` with wrapped text and paging
+- `Selection` handles moving a cursor through a list of choices
+- `Menu` combines a `Panel` with a `Selection`
+
+This is a good beginner-friendly UI architecture because each class has one easy-to-name job.
+
 ### `BitmapFont` — `GMDCore/Graphics/BitmapFont.cs`
 
 A pixel-perfect bitmap font backed by a pre-generated glyph atlas. The atlas covers printable ASCII (32–126) in 16-column rows. Per-character advance widths are stored in a static table, giving the font variable-width character spacing without runtime font rendering.
 
 ```csharp
-Game1.MediumFont.Draw(spriteBatch, "Hello!", position, Color.White);
-Vector2 size = Game1.MediumFont.MeasureString("Hello!");
+Locator.Assets.MediumFont.Draw(spriteBatch, "Hello!", position, Color.White);
+Vector2 size = Locator.Assets.MediumFont.MeasureString("Hello!");
 ```
 
-Three sizes (`SmallFont`, `MediumFont`, `LargeFont`) are loaded once in `Game1` and accessed as statics.
+Three sizes (`SmallFont`, `MediumFont`, `LargeFont`) are loaded once in `Game1` and registered in `Locator.Assets`.
 
 The font images and the character-width data hardcoded in `BitmapFont.cs` were not written by hand — they were produced by `Tools/GenerateFontAtlas.py`. The script takes a `.ttf` font file, renders each character into a spritesheet, and prints the width of every character so the font knows how far to advance after drawing each one. If you ever want to use a different font, run the script and copy the printed widths back into `BitmapFont.cs`.
 
@@ -215,15 +265,25 @@ A common approach to audio in games is a static singleton (`SoundManager.PlayMus
 // Pokemon/Locator.cs
 public static class Locator
 {
-    public static TweenManager Tweens { get; private set; } = new TweenManager();
-    public static IAudio        Audio { get; private set; } = new NullAudio();
+    public static ITweenManager Tweens { get; private set; } = new TweenManager();
+    public static IAudio        Audio  { get; private set; } = new NullAudio();
+    public static GameAssets    Assets { get; private set; } = null!;
 
-    public static void Provide(TweenManager tweens) => Tweens = tweens;
-    public static void Provide(IAudio audio)        => Audio  = audio;
+    public static void Provide(ITweenManager tweens) => Tweens = tweens;
+    public static void Provide(IAudio audio)         => Audio  = audio;
+    public static void Provide(GameAssets assets)    => Assets = assets;
 }
 ```
 
-Any class calls `Locator.Audio.PlayHit()` or `Locator.Tweens.After(1f, callback)` without knowing or caring what the concrete implementation is.
+Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the teaching example on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
+
+For teaching purposes, think of `Locator` as the game's shared toolbox:
+
+- audio service
+- tween manager
+- shared loaded assets
+
+This is not the only way to structure a game, but it keeps small gameplay classes approachable because they do not need large constructors just to receive a font, a cursor texture, and an audio service.
 
 ### The Null Object
 
@@ -245,6 +305,10 @@ This means any code that calls `Locator.Audio` before the service is registered 
 Registration happens in `Game1.LoadContent`:
 
 ```csharp
+Locator.Provide(new GameAssets(
+    smallFont, mediumFont, largeFont,
+    tileAtlas, entityAtlas, cursorTex, shadowTex));
+
 var audio = new SoundManager();
 audio.LoadContent(Content);
 Locator.Provide(audio);
@@ -264,7 +328,7 @@ Tweens are lightweight, time-based property animations managed by `TweenManager`
 // Slide the player sprite from off-screen to its battle position
 Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     .Add(v => PlayerSprite.X   = v, startX, targetX)
-    .Add(v => _playerCircleX   = v, startCircle, targetCircle)
+    .Add(v => _playerShadowX   = v, startShadowX, targetShadowX)
     .Finish(() => ShowStartingDialogue());
 ```
 
@@ -273,7 +337,7 @@ Multiple properties tween in parallel within one group. `.Finish` fires once whe
 ### `After` — fire a callback after a delay
 
 ```csharp
-Locator.Tweens.After(GameSettings.AttackPauseDuration, () =>
+Locator.Tweens.After(move.PauseBeforeAttack, () =>
 {
     // ... begin the tackle animation
 });
@@ -313,15 +377,17 @@ public float Y    { get; set; }
 
 ### `EntityWalkState` — `Pokemon/States/EntityStates/EntityWalkState.cs`
 
-`Enter` is called once when the walk begins. `AttemptMove` checks whether the target tile is within the map boundary, then:
+`Enter` is called once when the walk begins. `AttemptMove` computes the tile directly in front of the entity, checks whether it is within the map boundary, lets subclasses inspect that destination tile, then:
 
-1. Updates `MapX` / `MapY` to the target tile immediately.
-2. Schedules a tween that moves `X` / `Y` from the current pixel position to the new pixel position over `WalkTweenDuration` seconds.
-3. Calls `OnMovementComplete` when the tween finishes.
+1. Optionally reacts to the destination tile before movement is committed.
+2. Updates `MapX` / `MapY` to the target tile immediately.
+3. Schedules a tween that moves `X` / `Y` from the current pixel position to the new pixel position over `WalkTweenDuration` seconds.
+4. Calls `OnMovementComplete` when the tween finishes.
 
 ```csharp
-float targetX = toX * GameSettings.TileSize;
-float targetY = toY * GameSettings.TileSize - Entity.Height / 2f;
+Point destination = GetDestination();
+float targetX = destination.X * GameSettings.TileSize;
+float targetY = destination.Y * GameSettings.TileSize - Entity.Height / 2f;
 
 Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
     .Add(v => Entity.X = v, Entity.X, targetX)
@@ -382,14 +448,14 @@ The overworld is two `TileMap` layers (base terrain and tall grass) plus the pla
 
 ### Random Encounters
 
-Random encounters are checked in `PlayerWalkState.Enter` — at the start of each tile step, before movement begins:
+Random encounters are checked against the **destination tile** in `PlayerWalkState.BeforeMove`, so the code matches the game rule students will expect: stepping **into** tall grass can trigger a battle.
 
 ```csharp
-private bool CheckForEncounter()
+protected override bool BeforeMove(Point destination)
 {
-    int tileId = Level.GrassLayer.GetTile(_player.MapX, _player.MapY);
-    if (tileId != GameSettings.TileTallGrass) return false;
-    if (!RollEncounter()) return false;
+    int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
+    if (tileId != GameSettings.TileTallGrass) return true;
+    if (!RollEncounter()) return true;
 
     // freeze the player, pause music, fade to battle
     Locator.Audio.PauseFieldMusic();
@@ -402,7 +468,7 @@ private bool CheckForEncounter()
             _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
         }));
 
-    return true;
+    return false;
 }
 ```
 
@@ -422,8 +488,8 @@ Owns the battle scene: two `BattleSprite` instances, three `ProgressBar` widgets
 Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     .Add(v => PlayerSprite.X   = v, PlayerSprite.X,   32f)
     .Add(v => OpponentSprite.X = v, OpponentSprite.X, GameSettings.VirtualWidth - 96f)
-    .Add(v => _playerCircleX   = v, _playerCircleX,   66f)
-    .Add(v => _opponentCircleX = v, _opponentCircleX, GameSettings.VirtualWidth - 70f)
+    .Add(v => _playerShadowX   = v, _playerShadowX,   66f)
+    .Add(v => _opponentShadowX = v, _opponentShadowX, GameSettings.VirtualWidth - 70f)
     .Finish(() =>
     {
         RenderHealthBars = true;
@@ -431,7 +497,7 @@ Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
     });
 ```
 
-`BattleState` exposes its sprites and progress bars as public properties so `TakeTurnState` can animate them without needing its own references.
+`BattleState` exposes its sprites and progress bars as public properties so `TakeTurnState` can animate them without needing its own references. It is the persistent backdrop for the whole fight. It keeps drawing the scene while other states sit on top of it.
 
 ### `BattleMenuState` — `Pokemon/States/GameStates/BattleMenuState.cs`
 
@@ -450,6 +516,15 @@ After(pause) → tween sprite lunge → tween lunge back
 ```
 
 Everything is driven by `Locator.Tweens` — no `Update` loop, no frame counters. When the sequence ends, `TakeTurnState` pops itself and pushes `BattleMenuState` for the next turn, or pushes `BattleMessageState` for a faint/victory outcome.
+
+This is a nice example of separating **scene ownership** from **event sequencing**:
+
+- `BattleState` owns the scene and HUD
+- `BattleMenuState` owns player choice
+- `BattleMessageState` owns temporary text overlays
+- `TakeTurnState` owns the order of events in one turn
+
+Each class stays smaller because it has one main reason to change.
 
 **Battle state diagram:**
 
@@ -496,10 +571,14 @@ for (int i = 0; i < 3; i++) if (rng.Next(1, 7) <= AttackIV)  { Attack++;  atkGai
 
 ```csharp
 // Mon.cs
-public int CalcDamageTo(Mon defender) => Math.Max(1, Attack - defender.Defense);
+public int CalcDamageTo(Mon defender, Move move)
+{
+    int damage = (Attack * move.BasePower / 10) - defender.Defense;
+    return Math.Max(1, damage);
+}
 ```
 
-Attack minus Defense, minimum 1. Simple enough for an educational project but already separated into a method on the model class — the battle system calls it without knowing the formula.
+Attack power scaled by move power minus Defense, minimum 1. Simple enough for an educational project but already separated into a method on the model class — the battle system calls it without knowing the formula.
 
 ### Experience and Levelling Up
 
@@ -515,7 +594,7 @@ public (int hpGain, int atkGain, int defGain, int spdGain) LevelUp()
 }
 ```
 
-EXP required grows quadratically with level. `LevelUp` returns the stat gains as a tuple so `TakeTurnState` can display them without needing to inspect `Mon` state before and after.
+EXP required grows quadratically with level. `LevelUp` returns the stat gains as a tuple so `TakeTurnState` can display them (e.g. "Level Up! HP+2 ATK+1 DEF+0 SPD+1") without needing to inspect `Mon` state before and after.
 
 ### Exp Reward
 
@@ -549,11 +628,11 @@ The rule is: **content lives in JSON, behaviour lives in C#**.
 ```json
 [
   {
-    "name": "Bulbasaur",
-    "baseHp": 10, "baseAttack": 5, "baseDefense": 4, "baseSpeed": 3,
-    "hpIV": 3, "attackIV": 3, "defenseIV": 2, "speedIV": 2,
-    "battleSpriteFront": "images/pokemon/bulbasaur_front",
-    "battleSpriteBack":  "images/pokemon/bulbasaur_back"
+    "name": "Aardart",
+    "baseHp": 14, "baseAttack": 9, "baseDefense": 5, "baseSpeed": 6,
+    "hpIV": 3, "attackIV": 4, "defenseIV": 2, "speedIV": 3,
+    "battleSpriteFront": "images/pokemon/aardart-front",
+    "battleSpriteBack":  "images/pokemon/aardart-back"
   },
   ...
 ]

@@ -6,7 +6,7 @@ namespace GMDCore.Tweening;
 
 // Lightweight tween/timer system. All tweening is linear interpolation.
 // Callbacks fire on the game thread.
-public sealed class TweenManager
+public sealed class TweenManager : ITweenManager
 {
 
     // Tweens one or more float properties over a fixed duration.

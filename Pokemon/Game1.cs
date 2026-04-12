@@ -12,30 +12,15 @@ namespace Pokemon;
 
 public sealed class Game1 : Core
 {
-    // Static accessors so states created without a Game1 reference can reach shared resources.
-    public static Game1 Current { get; private set; }
-
-    public new Matrix ScreenScaleMatrix => base.ScreenScaleMatrix;
-
-    // Three font sizes (pixel-perfect bitmap fonts, no AA).
-    public static BitmapFont SmallFont  { get; private set; }
-    public static BitmapFont MediumFont { get; private set; }
-    public static BitmapFont LargeFont  { get; private set; }
-
-    // Loaded textures for entity sprites and cursor
-    public static TextureAtlas TileAtlas   { get; private set; }
-    public static TextureAtlas EntityAtlas { get; private set; }
-    public static Texture2D    CursorTex  { get; private set; }
-
+    // The whole game is first drawn at the virtual resolution into this texture,
+    // then scaled once into DestinationRectangle.
     private RenderTarget2D _renderTarget;
 
     public Game1()
         : base("VIAMon",
                GameSettings.WindowWidth,  GameSettings.WindowHeight,
                GameSettings.VirtualWidth, GameSettings.VirtualHeight)
-    {
-        Current = this;
-    }
+    { }
 
     protected override void Initialize()
     {
@@ -47,15 +32,28 @@ public sealed class Game1 : Core
     {
         base.LoadContent();
 
-        SmallFont  = BitmapFont.CreateSmall(Content.Load<Texture2D>("fonts/small_atlas"));
-        MediumFont = BitmapFont.CreateMedium(Content.Load<Texture2D>("fonts/medium_atlas"));
-        LargeFont  = BitmapFont.CreateLarge(Content.Load<Texture2D>("fonts/large_atlas"));
+        var smallFont  = BitmapFont.CreateSmall(Content.Load<Texture2D>("fonts/small_atlas"));
+        var mediumFont = BitmapFont.CreateMedium(Content.Load<Texture2D>("fonts/medium_atlas"));
+        var largeFont  = BitmapFont.CreateLarge(Content.Load<Texture2D>("fonts/large_atlas"));
 
-        TileAtlas   = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/tiles"), GameSettings.TileSize, GameSettings.TileSize);
-        EntityAtlas = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/entities"), GameSettings.TileSize, GameSettings.TileSize);
-        CursorTex   = Content.Load<Texture2D>("images/cursor");
+        var tileAtlas   = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/tiles"), GameSettings.TileSize, GameSettings.TileSize);
+        var entityAtlas = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/entities"), GameSettings.TileSize, GameSettings.TileSize);
+        var cursorTex   = Content.Load<Texture2D>("images/cursor");
+        var shadowTex   = TextureFactory.CreateEllipse(GraphicsDevice, 72, 24, new Color(45, 184, 45, 124));
 
-        _renderTarget = new RenderTarget2D(GraphicsDevice, GameSettings.VirtualWidth, GameSettings.VirtualHeight);
+        Locator.Provide(new GameAssets(
+            smallFont,
+            mediumFont,
+            largeFont,
+            tileAtlas,
+            entityAtlas,
+            cursorTex,
+            shadowTex));
+
+        _renderTarget = new RenderTarget2D(
+            GraphicsDevice,
+            GameSettings.VirtualWidth,
+            GameSettings.VirtualHeight);
 
         // Species data must load before ContentLoader (sprite paths are derived from it)
         PokemonDefinitions.LoadContent(Content);
@@ -65,37 +63,33 @@ public sealed class Game1 : Core
         audio.LoadContent(Content);
         Locator.Provide(audio);
 
-        StateStack.Push(new StartState(this));
+        StateStack.Push(new StartState(StateStack));
     }
 
-    protected override void Update(GameTime gameTime)
+    protected override void UpdateGame(GameTime gameTime)
     {
         // Tweens fire first so state changes from callbacks are visible to StateStack.Update.
         Locator.Tweens.Update(gameTime);
         StateStack.Update(gameTime);
-        base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        // Capture the letterbox destination rect before switching render target
-        // (Core.UpdateScreenScaleMatrix sets GraphicsDevice.Viewport to the centered rect)
-        var dest = new Rectangle(GraphicsDevice.Viewport.X, GraphicsDevice.Viewport.Y,
-                                 GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-
-        // Draw all states into the virtual-resolution render target (no scaling matrix needed)
+        // Draw the whole game at the virtual resolution first.
         GraphicsDevice.SetRenderTarget(_renderTarget);
         GraphicsDevice.Clear(Color.Black);
         StateStack.Draw(SpriteBatch);
-
-        // Upscale the render target to the screen with point sampling (pixel-perfect)
         GraphicsDevice.SetRenderTarget(null);
-        GraphicsDevice.Viewport = new Viewport(0, 0,
+
+        // Then scale that one image into the centered letterboxed/pillarboxed area.
+        GraphicsDevice.Viewport = new Viewport(
+            0,
+            0,
             GraphicsDevice.PresentationParameters.BackBufferWidth,
             GraphicsDevice.PresentationParameters.BackBufferHeight);
         GraphicsDevice.Clear(Color.Black);
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        SpriteBatch.Draw(_renderTarget, dest, Color.White);
+        SpriteBatch.Draw(_renderTarget, DestinationRectangle, Color.White);
         SpriteBatch.End();
 
         base.Draw(gameTime);

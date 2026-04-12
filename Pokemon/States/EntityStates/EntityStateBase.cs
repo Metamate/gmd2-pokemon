@@ -3,7 +3,8 @@ using Pokemon.Entities;
 
 namespace Pokemon.States.EntityStates;
 
-// Base class for all entity states (idle, walk, …).
+// Base class for entity states (idle, walk, …). Separate from GameStateBase because
+// entity states manage per-entity behavior, not game-level flow (menus, battles).
 public abstract class EntityStateBase
 {
     protected readonly Entity Entity;
