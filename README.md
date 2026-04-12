@@ -28,7 +28,7 @@ Key concepts covered by this project: a state *stack* for layered game flow, a G
 ```
 gmd2-pokemon/
 ├── GMDCore/               # Reusable engine framework (no game logic)
-│   ├── Core.cs            # XNA Game subclass — window, loop, scaling, Pixel texture
+│   ├── Core.cs            # Game subclass — window, loop, scaling, Pixel texture
 │   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, TileMap, BitmapFont, …
 │   ├── GUI/               # Panel, ProgressBar
 │   ├── States/            # GameStateBase, StateStack
