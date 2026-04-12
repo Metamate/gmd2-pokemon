@@ -10,13 +10,13 @@ namespace Pokemon.States.GameStates;
 // Renders the Fight / Run menu during a battle.
 public sealed class BattleMenuState : GameStateBase
 {
-    private readonly StateStack  _stack;
+    private readonly StateStack _stack;
     private readonly BattleState _battleState;
-    private readonly Menu        _menu;
+    private readonly Menu _menu;
 
     public BattleMenuState(StateStack stack, BattleState battleState)
     {
-        _stack       = stack;
+        _stack = stack;
         _battleState = battleState;
 
         var menuPos = Layout.GetPosition(Anchor.BottomRight, 64, 64);
@@ -27,7 +27,7 @@ public sealed class BattleMenuState : GameStateBase
                 new("Fight", OnFightSelected),
                 new("Run",   OnRunSelected)
             },
-            Locator.Assets.SmallFont,
+            Locator.Assets.MediumFont,
             Locator.Assets.CursorTex);
     }
 

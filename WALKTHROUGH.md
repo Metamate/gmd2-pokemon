@@ -1,8 +1,6 @@
 # Feature Walkthrough — GMD2 Pokemon
 
-This document is a guided tour of the MonoGame codebase, written in a note-style format inspired by course walkthroughs like the CS50 Pokemon notes.
-
-The goal is not to explain every line. The goal is to help a student answer:
+The goal of this walkthrough is not to explain every line. The goal is to help answer:
 
 - what problem is this feature solving?
 - which files are the important ones?
