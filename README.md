@@ -579,7 +579,7 @@ public int CalcDamageTo(Mon defender, Move move)
 }
 ```
 
-Attack power scaled by move power minus Defense, minimum 1. Simple enough for an educational project but already separated into a method on the model class — the battle system calls it without knowing the formula.
+Attack power scaled by move power minus Defense, minimum 1.
 
 ### Experience and Levelling Up
 
