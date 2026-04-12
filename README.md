@@ -4,6 +4,9 @@ A top-down Pokemon-like built on **MonoGame** in C#. This document walks through
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
+For a more guided, note-style tour of the codebase by feature, see [WALKTHROUGH.md](WALKTHROUGH.md).
+Use this README for the overall architecture. Use `WALKTHROUGH.md` for a slower feature-by-feature source tour.
+
 ## Read In This Order
 
 Do not try to understand every file in one pass. A much better path is:
@@ -127,7 +130,7 @@ protected override void UpdateGame(GameTime gameTime)
 }
 ```
 
-`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into a centered destination rectangle in the window.
+`Game1` then draws the whole game into a **`RenderTarget2D`** at the virtual resolution and scales that final image into `DestinationRectangle`, a centered rectangle that preserves the virtual aspect ratio inside the real window.
 
 ```csharp
 // Game1.cs
@@ -171,7 +174,7 @@ public void Update(GameTime gameTime) { ... }   // only the top state updates
 public void Draw(SpriteBatch sb)      { ... }   // all states draw, bottom to top
 ```
 
-Only the top state receives `Update` — it has exclusive control of input. All states draw, so underlying states remain visible behind overlays. Each state still draws in the same virtual coordinate system through `Core.BeginDraw`; `Game1` handles window scaling afterward by drawing the final render target.
+Only the top state receives `Update`, so it has exclusive control of input. All states draw, so underlying states remain visible behind overlays. Each state still draws in the same virtual coordinate system through `Core.BeginDraw`; `Game1` handles scaling afterward by drawing the final render target.
 
 This enables patterns that a single-state machine cannot express:
 
@@ -193,7 +196,7 @@ When the player selects Fight:
            PlayState
            BattleState
            TakeTurnState      (executes the turn, pops itself when done)
-           BattleMessageState (shows "Aardart used Tackle!") ◄── gets Update
+           BattleMessageState (shows the current attack message) ◄── gets Update
 ```
 
 ---
@@ -208,8 +211,6 @@ The guiding idea is to build a few tiny widgets and then combine them:
 - `Textbox` combines a `Panel` with wrapped text and paging
 - `Selection` handles moving a cursor through a list of choices
 - `Menu` combines a `Panel` with a `Selection`
-
-This is a good beginner-friendly UI architecture because each class has one easy-to-name job.
 
 ### `BitmapFont` — `GMDCore/Graphics/BitmapFont.cs`
 
@@ -275,9 +276,9 @@ public static class Locator
 }
 ```
 
-Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the teaching example on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
+Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the project on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
 
-For teaching purposes, think of `Locator` as the game's shared toolbox:
+You can think of `Locator` as the game's shared toolbox:
 
 - audio service
 - tween manager
