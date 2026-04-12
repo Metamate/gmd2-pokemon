@@ -10,7 +10,7 @@ public static class Locator
 {
     public static ITweenManager Tweens { get; private set; } = new TweenManager();
     public static IAudio        Audio { get; private set; } = new NullAudio();
-    public static GameAssets    Assets { get; private set; } = null!;
+    public static GameAssets    Assets { get; private set; } = null;
 
     public static void Provide(ITweenManager tweens) => Tweens = tweens;
     public static void Provide(IAudio audio)         => Audio  = audio;
