@@ -4,9 +4,6 @@ A top-down Pokemon-like built on **MonoGame** in C#. This document walks through
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
-For a more guided, note-style tour of the codebase by feature, see [WALKTHROUGH.md](WALKTHROUGH.md).
-Use this README for the overall architecture. Use `WALKTHROUGH.md` for a slower feature-by-feature source tour.
-
 ## Read In This Order
 
 Do not try to understand every file in one pass. A much better path is:
@@ -42,7 +39,6 @@ Those parts matter, but they are support systems. The main architecture lessons 
 9. [The Battle System](#9-the-battle-system)
 10. [RPG Mechanics](#10-rpg-mechanics)
 11. [Data-Driven Definitions](#11-data-driven-definitions)
-12. [Key Design Decisions](#12-key-design-decisions)
 
 ---
 
@@ -260,7 +256,7 @@ new("Run",   OnRunSelected)
 
 ## 5. Service Locator Pattern
 
-A common approach to audio in games is a static singleton (`SoundManager.PlayMusic()`). That works, but hides dependencies — nothing in a class's signature tells you it uses audio. The **Service Locator** pattern (from *Game Programming Patterns* by Robert Nystrom) keeps the convenience of global access while making registration explicit and allowing the concrete implementation to be swapped out.
+A common approach to audio in games is a static singleton (`SoundManager.PlayMusic()`). That works, but hides dependencies — nothing in a class's signature tells you it uses audio. The **Service Locator** pattern keeps the convenience of global access while making registration explicit and allowing the concrete implementation to be swapped out.
 
 ```csharp
 // Pokemon/Locator.cs
@@ -276,7 +272,7 @@ public static class Locator
 }
 ```
 
-Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the project on one shared-access pattern instead of mixing a locator with a second set of `Game1` statics.
+Any class calls `Locator.Audio.PlayHit()`, `Locator.Tweens.After(1f, callback)`, or `Locator.Assets.SmallFont.Draw(...)` without knowing or caring who loaded those objects. That keeps the project on one shared-access pattern instead of a set of `Game1` statics.
 
 You can think of `Locator` as the game's shared toolbox:
 
@@ -284,7 +280,7 @@ You can think of `Locator` as the game's shared toolbox:
 - tween manager
 - shared loaded assets
 
-This is not the only way to structure a game, but it keeps small gameplay classes approachable because they do not need large constructors just to receive a font, a cursor texture, and an audio service.
+This is not the only way to structure a game, but it keeps small gameplay classes approachable because they do not need large constructors just to receive a font, an audio service, a tween manager, etc..
 
 ### The Null Object
 
@@ -419,26 +415,6 @@ protected override void OnMovementComplete()
 }
 ```
 
-### `TileMap` — `GMDCore/Graphics/TileMap.cs`
-
-A 2D grid of `int` IDs. `-1` means empty (not drawn). IDs are 0-based: tile ID `n` draws atlas frame `n` directly.
-
-```csharp
-public void Draw(SpriteBatch spriteBatch, TextureAtlas atlas, int tileSize)
-{
-    for (int y = 0; y < Height; y++)
-        for (int x = 0; x < Width; x++)
-        {
-            int id = _ids[y, x];
-            if (id < 0) continue;
-            atlas.GetRegion($"frame_{id}")
-                 .Draw(spriteBatch, new Vector2(x * tileSize, y * tileSize), Color.White);
-        }
-}
-```
-
-The `-1 = empty` convention avoids off-by-one translation between tile IDs and atlas frame indices.
-
 ---
 
 ## 8. The Overworld and Random Encounters
@@ -449,7 +425,7 @@ The overworld is two `TileMap` layers (base terrain and tall grass) plus the pla
 
 ### Random Encounters
 
-Random encounters are checked against the **destination tile** in `PlayerWalkState.BeforeMove`, so the code matches the game rule students will expect: stepping **into** tall grass can trigger a battle.
+Random encounters are checked against the destination tile in `PlayerWalkState.BeforeMove`, i.e. stepping into tall grass can trigger a battle.
 
 ```csharp
 protected override bool BeforeMove(Point destination)
@@ -665,35 +641,3 @@ private record AnimationEntry(string Name, int[] Frames);
 ```
 
 Records are ideal here: they are pure data containers with no behaviour, and their positional constructors match the deserialized properties automatically.
-
----
-
-## 12. Key Design Decisions
-
-### State stack over single state
-
-Swapping a single active state cannot express overlapping states — you cannot fade while something underneath is still visible, or show a text box over a live game scene. The state stack makes these straightforward. The cost is that states must be careful about when they pop themselves (usually in `Update` when their purpose is complete), but the payoff is composable, layered game flow with no special-casing.
-
-### Tweens as the primary sequencer
-
-The battle system has no `Update` logic that branches on a phase variable. All sequencing is expressed as tween chains — one callback schedules the next tween, which schedules the next callback. This keeps each step isolated: a lunge animation does not know or care what runs after it. Adding a delay, changing an order, or inserting a new visual effect is a local change to one callback.
-
-### Service Locator over static singletons
-
-A static singleton is simple but hides dependencies — you cannot tell from a class's constructor what it relies on. The Service Locator makes registration explicit (`Locator.Provide(audio)`) and allows the `NullAudio` null object to stand in before the real service is ready. All call sites are identical regardless of which implementation is active.
-
-### Null object for audio
-
-`NullAudio` implements `IAudio` with empty methods. This means any state that calls `Locator.Audio.PlayHit()` will not crash if audio loads fail, the service is never registered, or a test runs without a real audio device. There are no null checks at call sites — the null object absorbs the call safely.
-
-### Dual coordinates for tile-based movement
-
-`MapX`/`MapY` are the authoritative position — the entity is always on a specific tile. `X`/`Y` are a visual lie that the tween system maintains between steps. This separation means tile-based logic (encounter checking, walkability) always works with clean integer grid coordinates, while rendering always gets a smooth floating-point position. The two concerns never interfere.
-
-### RPG data on the model
-
-`Mon.CalcDamageTo`, `Mon.LevelUp`, and `Mon.Heal` live on the model class, not on the battle state. The battle state asks the model to compute damage and apply results — it does not perform arithmetic itself. This keeps game rules in one place. If the damage formula changes, only `Mon` changes.
-
-### Single source of truth for constants
-
-`GameSettings.cs` holds every magic number: tile sizes, encounter chance, tween durations, stat formulas, GUI padding. States and classes reference it by name rather than embedding literals.
