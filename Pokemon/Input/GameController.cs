@@ -26,6 +26,7 @@ public static class GameController
                                 || Core.Input.Keyboard.WasKeyJustPressed(Keys.Space);
 
     public static bool Heal => Core.Input.Keyboard.WasKeyJustPressed(Keys.P);
+    public static bool Pause => Core.Input.Keyboard.WasKeyJustPressed(Keys.Q);
 
     public static bool MenuUp   => Core.Input.Keyboard.WasKeyJustPressed(Keys.Up)   || Core.Input.Keyboard.WasKeyJustPressed(Keys.W);
     public static bool MenuDown => Core.Input.Keyboard.WasKeyJustPressed(Keys.Down) || Core.Input.Keyboard.WasKeyJustPressed(Keys.S);

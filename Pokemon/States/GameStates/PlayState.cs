@@ -45,6 +45,10 @@ public sealed class PlayState : GameStateBase
             _stack.Push(new DialogueState(_stack,
                 "Your Pokemon has been healed!"));
         }
+        if (GameController.Pause)
+        {
+            _stack.Push(new PauseState(_stack));
+        }
 
         _level.Update(gameTime);
     }
