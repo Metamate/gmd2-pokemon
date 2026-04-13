@@ -374,7 +374,7 @@ public float Y    { get; set; }
 
 ### `EntityWalkState` — `Pokemon/States/EntityStates/EntityWalkState.cs`
 
-`Enter` is called once when the walk begins. `AttemptMove` computes the tile directly in front of the entity, checks whether it is within the map boundary, lets subclasses inspect that destination tile, then:
+`Enter` is called once when the walk begins. `AttemptMove` computes the tile directly in front of the entity, checks whether it is within the map boundary, gives subclasses a chance to react before movement is committed, then:
 
 1. Optionally reacts to the destination tile before movement is committed.
 2. Updates `MapX` / `MapY` to the target tile immediately.
@@ -396,11 +396,14 @@ The Y target subtracts half the entity's height to visually center the sprite on
 
 ### `PlayerWalkState` — `Pokemon/States/PlayerStates/PlayerWalkState.cs`
 
-Extends `EntityWalkState`. `OnMovementComplete` checks `GameController.MovementDirection` — if a direction key is still held, it creates a new `PlayerWalkState` immediately (chaining movement), otherwise it transitions to `PlayerIdleState`.
+Extends `EntityWalkState`. When the walking tween finishes, `OnMovementComplete` first checks whether the landed-on tile is tall grass and rolls for a random encounter. If no battle starts, it then checks `GameController.MovementDirection` — if a direction key is still held, it creates a new `PlayerWalkState` immediately (chaining movement), otherwise it transitions to `PlayerIdleState`.
 
 ```csharp
 protected override void OnMovementComplete()
 {
+    if (TryStartEncounter())
+        return;
+
     Direction? dir = GameController.MovementDirection;
 
     if (dir.HasValue)
@@ -425,16 +428,18 @@ The overworld is two `TileMap` layers (base terrain and tall grass) plus the pla
 
 ### Random Encounters
 
-Random encounters are checked against the destination tile in `PlayerWalkState.BeforeMove`, i.e. stepping into tall grass can trigger a battle.
+Random encounters are checked after the walking tween finishes. `PlayerWalkState.OnMovementComplete` looks at the tile the player has just landed on; if it is tall grass and the 1-in-`EncounterChance` roll succeeds, movement stops and the battle transition begins.
 
 ```csharp
-protected override bool BeforeMove(Point destination)
+private bool TryStartEncounter()
 {
-    int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
-    if (tileId != GameSettings.TileTallGrass) return true;
-    if (!RollEncounter()) return true;
+    int tileId = Level.GrassLayer.GetTile(Entity.MapX, Entity.MapY);
+    if (tileId != GameSettings.TileTallGrass) return false;
+    if (!RollEncounter()) return false;
 
     // freeze the player, pause music, fade to battle
+    Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
+    Entity.ChangeAnimation(AnimationKeys.Idle(Entity.Direction));
     Locator.Audio.PauseFieldMusic();
     Locator.Audio.PlayBattleMusic();
 
@@ -445,7 +450,7 @@ protected override bool BeforeMove(Point destination)
             _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
         }));
 
-    return false;
+    return true;
 }
 ```
 
