@@ -10,8 +10,8 @@ using GMDCore.States;
 namespace Pokemon.States.PlayerStates;
 
 // Moves the player one tile, then checks whether to continue walking.
-// Before committing the move, the destination tile is checked for tall grass.
-// Entering a tall-grass tile has a 1-in-10 chance of a random encounter.
+// After the move visually finishes, landing on a tall-grass tile has a
+// 1-in-10 chance of triggering a random encounter.
 public sealed class PlayerWalkState : EntityWalkState
 {
     private readonly Player     _player;
@@ -28,11 +28,11 @@ public sealed class PlayerWalkState : EntityWalkState
     private static bool RollEncounter()
         => System.Random.Shared.Next(GameSettings.EncounterChance) == 0;
 
-    protected override bool BeforeMove(Point destination)
+    private bool TryStartEncounter()
     {
-        int tileId = Level.GrassLayer.GetTile(destination.X, destination.Y);
-        if (tileId != GameSettings.TileTallGrass) return true;
-        if (!RollEncounter()) return true;
+        int tileId = Level.GrassLayer.GetTile(Entity.MapX, Entity.MapY);
+        if (tileId != GameSettings.TileTallGrass) return false;
+        if (!RollEncounter()) return false;
 
         // Freeze player in place (PlayerIdleState so input is re-enabled when battle ends)
         Entity.ChangeState(new PlayerIdleState(_player, Level, _stateStack));
@@ -48,11 +48,14 @@ public sealed class PlayerWalkState : EntityWalkState
                 _stateStack.Push(new FadeState(_stateStack, Color.White, GameSettings.FadeDuration, 1f, 0f, () => { }));
             }));
 
-        return false;
+        return true;
     }
 
     protected override void OnMovementComplete()
     {
+        if (TryStartEncounter())
+            return;
+
         // Continue walking if a direction key is still held
         Direction? dir = GameController.MovementDirection;
 
