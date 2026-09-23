@@ -1,5 +1,9 @@
 <Solution>
   <Project Path="Content/Content.csproj" />
   <Project Path="GMDCore/GMDCore.csproj" />
-  <Project Path="Pokemon/Pokemon.csproj" />
+  <Project Path="Pokemon0/Pokemon0.csproj" />
+  <Project Path="Pokemon1/Pokemon1.csproj" />
+  <Project Path="Pokemon2/Pokemon2.csproj" />
+  <Project Path="Pokemon3/Pokemon3.csproj" />
+  <Project Path="Pokemon4/Pokemon4.csproj" />
 </Solution>

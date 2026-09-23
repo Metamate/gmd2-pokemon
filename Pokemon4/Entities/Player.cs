@@ -1,0 +1,31 @@
+using GMDCore.Graphics;
+using Pokemon4.Definitions;
+using Pokemon4.Mons;
+
+namespace Pokemon4.Entities;
+
+// The player-controlled entity. Extends Entity by adding a Pokemon Party
+// and handling its own initialization (start position, size, animations).
+public sealed class Player : Entity
+{
+    public Party Party { get; }
+
+    public Player(TextureAtlas entityAtlas)
+    {
+        MapX   = GameSettings.PlayerStartMapX;
+        MapY   = GameSettings.PlayerStartMapY;
+        Width  = GameSettings.TileSize;
+        Height = GameSettings.TileSize;
+        X      = MapX * GameSettings.TileSize;
+        // Offset Y so the sprite visually stands on the tile, not above it
+        Y      = MapY * GameSettings.TileSize - Height / 2f;
+
+        foreach (var (key, anim) in ContentLoader.CreateEntityAnimations(entityAtlas))
+            Animations[key] = anim;
+
+        Party = new Party(new[]
+        {
+            new Mon(PokemonDefinitions.GetRandom(), GameSettings.PlayerStartLevel)
+        });
+    }
+}

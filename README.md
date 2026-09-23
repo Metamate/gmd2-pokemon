@@ -4,16 +4,31 @@ A top-down Pokemon-like built on **MonoGame** in C#. This document walks through
 
 Key concepts covered by this project: a state *stack* for layered game flow, a GUI layer, the Service Locator pattern, a tweening system, a turn-based battle system, and RPG mechanics.
 
+## Steps
+
+The game is built up in steps. Each step is a separate project that builds on the previous
+one, so you can follow the code's evolution one concept at a time. Compare two neighbouring
+steps (e.g. with a diff tool) to see exactly what changed. This walkthrough describes the
+finished game, `Pokemon4`.
+
+| Step | Topic | What's new |
+| --- | --- | --- |
+| `Pokemon0` | Overworld | Two tile layers, and tile-based movement tweened between tiles |
+| `Pokemon1` | State stack | Title screen, fade transitions and dialogue boxes layered on the stack; species data from JSON |
+| `Pokemon2` | Battles | Random encounters in tall grass, the battle scene, messages and a menu; for now you can only run |
+| `Pokemon3` | Turns & RPG mechanics | Fight: turn order, damage, experience, level-up, fainting; healing with `P` |
+| `Pokemon4` | Audio | A real audio service replaces the silent `NullAudio` in the locator (the finished game) |
+
 ## Read In This Order
 
 Do not try to understand every file in one pass. A much better path is:
 
-1. `Pokemon/Game1.cs` — see the big picture: load content, create the state stack, update, draw.
+1. `Pokemon4/Game1.cs` — see the big picture: load content, create the state stack, update, draw.
 2. `GMDCore/States/StateStack.cs` and `GMDCore/States/GameStateBase.cs` — understand how game flow is layered.
-3. `Pokemon/States/GameStates/PlayState.cs` — see the overworld running as one state.
-4. `Pokemon/Entities/Entity.cs`, `Pokemon/States/EntityStates/EntityWalkState.cs`, and `Pokemon/States/PlayerStates/PlayerWalkState.cs` — understand tile movement and encounters.
-5. `Pokemon/States/GameStates/BattleState.cs`, `Pokemon/States/GameStates/BattleMenuState.cs`, and `Pokemon/States/GameStates/TakeTurnState.cs` — understand the battle loop and how multiple states cooperate.
-6. `Pokemon/Mons/Mon.cs` — understand stats, damage, experience, and leveling.
+3. `Pokemon4/States/GameStates/PlayState.cs` — see the overworld running as one state.
+4. `Pokemon4/Entities/Entity.cs`, `Pokemon4/States/EntityStates/EntityWalkState.cs`, and `Pokemon4/States/PlayerStates/PlayerWalkState.cs` — understand tile movement and encounters.
+5. `Pokemon4/States/GameStates/BattleState.cs`, `Pokemon4/States/GameStates/BattleMenuState.cs`, and `Pokemon4/States/GameStates/TakeTurnState.cs` — understand the battle loop and how multiple states cooperate.
+6. `Pokemon4/Mons/Mon.cs` — understand stats, damage, experience, and leveling.
 
 On a first read, it is completely fine to ignore:
 
@@ -55,7 +70,7 @@ gmd2-pokemon/
 │   ├── GUI/               # Panel, ProgressBar
 │   ├── States/            # GameStateBase, StateStack
 │   └── Tweening/          # TweenManager, ITweenTask
-├── Pokemon/               # Game-specific code
+├── Pokemon0/ … Pokemon4/  # The game, step by step (Pokemon4 is the finished game)
 │   ├── Game1.cs           # Top-level game; owns the StateStack
 │   ├── GameAssets.cs      # Shared fonts/textures registered in the locator
 │   ├── GameSettings.cs    # All magic numbers in one place
@@ -77,13 +92,13 @@ gmd2-pokemon/
     └── GenerateFontAtlas.py   # Dev utility — regenerates the bitmap font atlas PNGs
 ```
 
-The split between `GMDCore` and `Pokemon` is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon` project.
+The split between `GMDCore` and the game projects is intentional: `GMDCore` knows nothing about Pokemon. The engine provides window management, a virtual-resolution scaler, input tracking, sprite and animation primitives, a state stack, a tween system, and GUI building blocks. Everything Pokemon-specific lives in the `Pokemon0`–`Pokemon4` projects.
 
 That split is one of the main architecture lessons in the project:
 
 - `GMDCore` is the reusable engine-like layer.
-- `Pokemon` is the game layer built on top of it.
-- If a class talks about Pokemon, grass, battles, or leveling, it belongs in `Pokemon`.
+- `Pokemon0`–`Pokemon4` are the game layer built on top of it.
+- If a class talks about Pokemon, grass, battles, or leveling, it belongs in the game project.
 - If a class could be reused in a different game, it probably belongs in `GMDCore`.
 
 ---
@@ -108,7 +123,7 @@ protected override void Initialize()
 
 Any class can draw a filled rectangle by calling `spriteBatch.Draw(Core.Pixel, rect, color)` without needing to create or pass its own texture.
 
-### Layer 2 — `Game1` (`Pokemon/Game1.cs`)
+### Layer 2 — `Game1` (`Pokemon4/Game1.cs`)
 
 `Core` refreshes input first, then hands control to `Game1`, which updates **tweens before states** so that property changes triggered by tween callbacks are visible to the state stack in the same frame.
 
@@ -240,11 +255,11 @@ Locator.Tweens.Tween(GameSettings.HpTweenDuration)
     .Add(v => _battle.PlayerHealthBar.Value = v, currentHp, newHp);
 ```
 
-### `Textbox` — `Pokemon/GUI/Textbox.cs`
+### `Textbox` — `Pokemon4/GUI/Textbox.cs`
 
 Displays a string of text inside a `Panel`, word-wrapping to fit the box width and splitting into pages that the player advances with Confirm. Used for all dialogue and battle messages.
 
-### `Selection` / `Menu` — `Pokemon/GUI/Selection.cs`, `Menu.cs`
+### `Selection` / `Menu` — `Pokemon4/GUI/Selection.cs`, `Menu.cs`
 
 `Selection` is a vertical list widget. Each item is a `MenuItem` record with a label and an `Action` callback:
 
@@ -262,7 +277,7 @@ new("Run",   OnRunSelected)
 A common approach to audio in games is a static singleton (`SoundManager.PlayMusic()`). That works, but hides dependencies — nothing in a class's signature tells you it uses audio. The **Service Locator** pattern keeps the convenience of global access while making registration explicit and allowing the concrete implementation to be swapped out.
 
 ```csharp
-// Pokemon/Locator.cs
+// Pokemon4/Locator.cs
 public static class Locator
 {
     public static ITweenManager Tweens { get; private set; } = new TweenManager();
@@ -290,7 +305,7 @@ This is not the only way to structure a game, but it keeps small gameplay classe
 Before `Game1.LoadContent` registers a real `SoundManager`, `Locator.Audio` holds a `NullAudio` — an implementation of `IAudio` where every method is a no-op:
 
 ```csharp
-// Pokemon/Audio/NullAudio.cs
+// Pokemon4/Audio/NullAudio.cs
 public sealed class NullAudio : IAudio
 {
     public void PlayFieldMusic()  { }
@@ -366,7 +381,7 @@ Tweens are registered in a pending list during the frame and flushed at the star
 Pokemon uses a **grid-first** movement model. Every entity has two positions:
 
 ```csharp
-// Pokemon/Entities/Entity.cs
+// Pokemon4/Entities/Entity.cs
 public int   MapX { get; set; }   // which tile (grid)
 public int   MapY { get; set; }
 public float X    { get; set; }   // pixel position (tweened between tiles)
@@ -375,7 +390,7 @@ public float Y    { get; set; }
 
 `MapX` / `MapY` are the authoritative grid position used for tile lookups and collision. `X` / `Y` are the *visual* position smoothly interpolated between tiles by the tween system. This is the correct model for grid-based games: the entity is always on one tile logically, but moves smoothly between tiles visually.
 
-### `EntityWalkState` — `Pokemon/States/EntityStates/EntityWalkState.cs`
+### `EntityWalkState` — `Pokemon4/States/EntityStates/EntityWalkState.cs`
 
 `Enter` is called once when the walk begins. `AttemptMove` computes the tile directly in front of the entity, checks whether it is within the map boundary, gives subclasses a chance to react before movement is committed, then:
 
@@ -397,7 +412,7 @@ Locator.Tweens.Tween(GameSettings.WalkTweenDuration)
 
 The Y target subtracts half the entity's height to visually center the sprite on its tile.
 
-### `PlayerWalkState` — `Pokemon/States/PlayerStates/PlayerWalkState.cs`
+### `PlayerWalkState` — `Pokemon4/States/PlayerStates/PlayerWalkState.cs`
 
 Extends `EntityWalkState`. When the walking tween finishes, `OnMovementComplete` first checks whether the landed-on tile is tall grass and rolls for a random encounter. If no battle starts, it then checks `GameController.MovementDirection` — if a direction key is still held, it creates a new `PlayerWalkState` immediately (chaining movement), otherwise it transitions to `PlayerIdleState`.
 
@@ -425,7 +440,7 @@ protected override void OnMovementComplete()
 
 ## 8. The Overworld and Random Encounters
 
-### `Level` — `Pokemon/World/Level.cs`
+### `Level` — `Pokemon4/World/Level.cs`
 
 The overworld is two `TileMap` layers (base terrain and tall grass) plus the player entity. The map is generated procedurally each session: the base layer is filled with random grass tile variants; the tall grass layer only covers rows from `TallGrassStartRow` downward.
 
@@ -465,7 +480,7 @@ The encounter triggers a **fade-out** → **push BattleState** → **fade-in** s
 
 The battle system is a sequence of states layered on the stack, each responsible for one phase.
 
-### `BattleState` — `Pokemon/States/GameStates/BattleState.cs`
+### `BattleState` — `Pokemon4/States/GameStates/BattleState.cs`
 
 Owns the battle scene: two `BattleSprite` instances, three `ProgressBar` widgets (player HP, opponent HP, EXP), and the bottom `Panel`. On first `Update` it triggers the **slide-in**: both sprites tween in from opposite edges of the screen while their shadow ellipses track them:
 
@@ -484,11 +499,11 @@ Locator.Tweens.Tween(GameSettings.BattleSlideInDuration)
 
 `BattleState` exposes its sprites and progress bars as public properties so `TakeTurnState` can animate them without needing its own references. It is the persistent backdrop for the whole fight. It keeps drawing the scene while other states sit on top of it.
 
-### `BattleMenuState` — `Pokemon/States/GameStates/BattleMenuState.cs`
+### `BattleMenuState` — `Pokemon4/States/GameStates/BattleMenuState.cs`
 
 Displays the Fight / Run `Menu` and waits for selection. Selecting Run pushes a `BattleMessageState` ("You fled successfully!"), then chains fade + stack cleanup to return to the overworld.
 
-### `TakeTurnState` — `Pokemon/States/GameStates/TakeTurnState.cs`
+### `TakeTurnState` — `Pokemon4/States/GameStates/TakeTurnState.cs`
 
 Executes one full battle round. Faster Pokemon (by Speed stat) attacks first. Each attack is a chain of tween callbacks:
 
@@ -528,11 +543,11 @@ BattleState (persistent, always draws)
 
 ## 10. RPG Mechanics
 
-### `PokemonSpecies` — `Pokemon/Mons/PokemonSpecies.cs`
+### `PokemonSpecies` — `Pokemon4/Mons/PokemonSpecies.cs`
 
 A data record describing a species: name, base stats, individual values (IVs, 1–5 per stat), and battle sprite paths. Loaded from JSON at startup — see section 11.
 
-### `Mon` — `Pokemon/Mons/Mon.cs`
+### `Mon` — `Pokemon4/Mons/Mon.cs`
 
 A runtime Pokemon instance. Stats are calculated from the species definition at construction by rolling level-up gains from level 1 up to the target level:
 
@@ -592,7 +607,7 @@ public int ExpReward => (HpIV + AttackIV + DefenseIV + SpeedIV) * Level;
 
 A Pokemon with higher IVs and a higher level is worth more EXP. The battle state reads this property without knowing the formula.
 
-### `Party` — `Pokemon/Mons/Party.cs`
+### `Party` — `Pokemon4/Mons/Party.cs`
 
 Holds a read-only list of `Mon` instances and exposes `Current` as the active Pokemon:
 
@@ -654,7 +669,7 @@ Records are ideal here: they are pure data containers with no behaviour, and the
 
 ## Content
 
-The game's raw assets are built by the **content builder** (MonoGame 3.8.5+):
+All steps share the same raw assets, built by the **content builder** (MonoGame 3.8.5+):
 
 ```text
 Content/
@@ -665,7 +680,7 @@ Content/
 ```
 
 There is no `.mgcb` file and no MGCB Editor. `Builder.cs` decides how each kind of asset is
-processed. The game project imports `BuildContent.targets`, so building the game also builds
+processed. Each step project imports `BuildContent.targets`, so building a step also builds
 the assets into its output folder, where `Content.Load` finds them.
 
 To add an asset, put it in `Content/Assets` and, if no existing rule matches it, add a rule
@@ -676,5 +691,5 @@ in `Builder.cs`.
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```sh
-dotnet run --project Pokemon
+dotnet run --project Pokemon4
 ```
