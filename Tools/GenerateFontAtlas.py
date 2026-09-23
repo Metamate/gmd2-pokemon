@@ -4,8 +4,8 @@
 
 from PIL import ImageFont, ImageDraw, Image
 
-FONT_FILE = "Pokemon/Content/fonts/font.ttf"
-OUT_DIR   = "Pokemon/Content/fonts"
+FONT_FILE = "Content/Assets/fonts/font.ttf"
+OUT_DIR   = "Content/Assets/fonts"
 COLS      = 16
 CHARS     = [chr(i) for i in range(32, 127)]
 

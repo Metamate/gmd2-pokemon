@@ -46,6 +46,9 @@ Those parts matter, but they are support systems. The main architecture lessons 
 
 ```
 gmd2-pokemon/
+├── Content/               # Content builder: raw assets and the C# rules that build them
+│   ├── Assets/            # Images, bitmap font atlases, sounds, JSON definitions
+│   └── Builder/           # Builder.cs — how each kind of asset is built
 ├── GMDCore/               # Reusable engine framework (no game logic)
 │   ├── Core.cs            # MonoGame Game subclass — input, letterboxing, Pixel texture
 │   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, TileMap, BitmapFont, …
@@ -646,3 +649,32 @@ private record AnimationEntry(string Name, int[] Frames);
 ```
 
 Records are ideal here: they are pure data containers with no behaviour, and their positional constructors match the deserialized properties automatically.
+
+---
+
+## Content
+
+The game's raw assets are built by the **content builder** (MonoGame 3.8.5+):
+
+```text
+Content/
+├── Assets/                  # The raw assets: images, fonts, sounds, data files
+├── Builder/Builder.cs       # The rules for building the assets, in C#
+├── BuildContent.targets     # Runs the builder when the game project builds
+└── Content.csproj
+```
+
+There is no `.mgcb` file and no MGCB Editor. `Builder.cs` decides how each kind of asset is
+processed. The game project imports `BuildContent.targets`, so building the game also builds
+the assets into its output folder, where `Content.Load` finds them.
+
+To add an asset, put it in `Content/Assets` and, if no existing rule matches it, add a rule
+in `Builder.cs`.
+
+## Running
+
+Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+
+```sh
+dotnet run --project Pokemon
+```
