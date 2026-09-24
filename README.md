@@ -19,6 +19,17 @@ finished game, `Pokemon4`.
 | `Pokemon3` | Turns & RPG mechanics | Fight: turn order, damage, experience, level-up, fainting; healing with `P` |
 | `Pokemon4` | Audio | A real audio service replaces the silent `NullAudio` in the locator (the finished game) |
 
+## New in GMDCore
+
+Compared with the core in [gmd2-zelda](https://github.com/Metamate/gmd2-zelda):
+
+- `States/StateStack`, `States/GameStateBase` (new): layered game states.
+- `Tweening/` (new): tweens, timers and callbacks.
+- `GUI/Panel`, `GUI/ProgressBar`, `Graphics/BitmapFont`, `Graphics/TextureFactory` (new).
+- `Core`: owns the `StateStack`, always reads input before game logic (games override
+  `UpdateGame`), draws the game into a letterboxed rectangle at its virtual resolution
+  (`DestinationRectangle`), and provides a 1×1 `Pixel` texture.
+
 ## Read In This Order
 
 Do not try to understand every file in one pass. A much better path is:
