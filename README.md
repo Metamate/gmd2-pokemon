@@ -24,7 +24,6 @@ finished game, `Pokemon4`.
 Compared with the core in [gmd2-zelda](https://github.com/Metamate/gmd2-zelda):
 
 - `States/StateStack`, `States/GameStateBase` (new): layered game states.
-- `Tweening/` (new): tweens, timers and callbacks.
 - `GUI/Panel`, `GUI/ProgressBar`, `Graphics/BitmapFont`, `Graphics/TextureFactory` (new).
 - `Core`: owns the `StateStack`, always reads input before game logic (games override
   `UpdateGame`), draws the game into a letterboxed rectangle at its virtual resolution
