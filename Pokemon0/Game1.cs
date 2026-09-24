@@ -30,11 +30,12 @@ public sealed class Game1 : Core
     {
         base.LoadContent();
 
-        var tileAtlas   = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/tiles"), GameSettings.TileSize, GameSettings.TileSize);
+        var tileTex     = Content.Load<Texture2D>("images/tiles");
+        var tileset     = new Tileset(new TextureRegion(tileTex, 0, 0, tileTex.Width, tileTex.Height), GameSettings.TileSize, GameSettings.TileSize);
         var entityAtlas = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/entities"), GameSettings.TileSize, GameSettings.TileSize);
 
         Locator.Provide(new GameAssets(
-            tileAtlas,
+            tileset,
             entityAtlas));
 
         _renderTarget = new RenderTarget2D(

@@ -11,7 +11,7 @@ public sealed class GameAssets
     public BitmapFont MediumFont { get; }
     public BitmapFont LargeFont { get; }
 
-    public TextureAtlas TileAtlas { get; }
+    public Tileset Tileset { get; }
     public TextureAtlas EntityAtlas { get; }
     public Texture2D CursorTex { get; }
     public Texture2D ShadowTex { get; }
@@ -20,7 +20,7 @@ public sealed class GameAssets
         BitmapFont smallFont,
         BitmapFont mediumFont,
         BitmapFont largeFont,
-        TextureAtlas tileAtlas,
+        Tileset tileset,
         TextureAtlas entityAtlas,
         Texture2D cursorTex,
         Texture2D shadowTex)
@@ -28,7 +28,7 @@ public sealed class GameAssets
         SmallFont = smallFont;
         MediumFont = mediumFont;
         LargeFont = largeFont;
-        TileAtlas = tileAtlas;
+        Tileset = tileset;
         EntityAtlas = entityAtlas;
         CursorTex = cursorTex;
         ShadowTex = shadowTex;

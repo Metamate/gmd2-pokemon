@@ -36,7 +36,8 @@ public sealed class Game1 : Core
         var mediumFont = BitmapFont.CreateMedium(Content.Load<Texture2D>("fonts/medium_atlas"));
         var largeFont  = BitmapFont.CreateLarge(Content.Load<Texture2D>("fonts/large_atlas"));
 
-        var tileAtlas   = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/tiles"), GameSettings.TileSize, GameSettings.TileSize);
+        var tileTex     = Content.Load<Texture2D>("images/tiles");
+        var tileset     = new Tileset(new TextureRegion(tileTex, 0, 0, tileTex.Width, tileTex.Height), GameSettings.TileSize, GameSettings.TileSize);
         var entityAtlas = TextureAtlas.FromGrid(Content.Load<Texture2D>("images/entities"), GameSettings.TileSize, GameSettings.TileSize);
         var cursorTex   = Content.Load<Texture2D>("images/cursor");
         var shadowTex   = TextureFactory.CreateEllipse(GraphicsDevice, 72, 24, new Color(45, 184, 45, 124));
@@ -45,7 +46,7 @@ public sealed class Game1 : Core
             smallFont,
             mediumFont,
             largeFont,
-            tileAtlas,
+            tileset,
             entityAtlas,
             cursorTex,
             shadowTex));

@@ -6,20 +6,19 @@ using Pokemon0.Entities;
 
 namespace Pokemon0.World;
 
-// The overworld level: two tile layers (base grass + tall grass) and the player entity.
+// The overworld level: two tilemap layers (base grass + tall grass) and the player entity.
 public sealed class Level
 {
-    public TileMap BaseLayer  { get; } = new(GameSettings.MapCols, GameSettings.MapRows);
-    public TileMap GrassLayer { get; } = new(GameSettings.MapCols, GameSettings.MapRows);
+    public Tilemap BaseLayer  { get; }
+    public Tilemap GrassLayer { get; }
 
     public Player Player { get; }
 
-    private readonly TextureAtlas _tileAtlas;
-
-    public Level(Player player, TextureAtlas tileAtlas)
+    public Level(Player player, Tileset tileset)
     {
         Player     = player;
-        _tileAtlas = tileAtlas;
+        BaseLayer  = new Tilemap(tileset, GameSettings.MapCols, GameSettings.MapRows);
+        GrassLayer = new Tilemap(tileset, GameSettings.MapCols, GameSettings.MapRows);
         GenerateMaps();
     }
 
@@ -32,10 +31,10 @@ public sealed class Level
             for (int x = 0; x < GameSettings.MapCols; x++)
             {
                 int baseId = GameSettings.TileGrass[rng.Next(GameSettings.TileGrass.Length)];
-                BaseLayer.SetTile(x, y, baseId);
+                BaseLayer.SetTile(x, y, new Tile(baseId));
 
-                int grassId = y >= GameSettings.TallGrassStartRow ? GameSettings.TileTallGrass : -1;
-                GrassLayer.SetTile(x, y, grassId);
+                if (y >= GameSettings.TallGrassStartRow)
+                    GrassLayer.SetTile(x, y, new Tile(GameSettings.TileTallGrass));
             }
         }
     }
@@ -47,8 +46,8 @@ public sealed class Level
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        BaseLayer.Draw(spriteBatch, _tileAtlas, GameSettings.TileSize);
-        GrassLayer.Draw(spriteBatch, _tileAtlas, GameSettings.TileSize);
+        BaseLayer.Draw(spriteBatch);
+        GrassLayer.Draw(spriteBatch);
         Player.Draw(spriteBatch);
     }
 }

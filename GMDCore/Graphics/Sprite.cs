@@ -22,6 +22,11 @@ public class Sprite
         Region = region;
     }
 
+    public void CenterOrigin()
+    {
+        Origin = new Vector2(Region.Width, Region.Height) * 0.5f;
+    }
+
     public void Draw(SpriteBatch spriteBatch, Vector2 position)
     {
         Region.Draw(spriteBatch, position, Color, Rotation, Origin, Scale, Effects, LayerDepth);

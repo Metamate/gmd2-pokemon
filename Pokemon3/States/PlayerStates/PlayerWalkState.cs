@@ -30,7 +30,7 @@ public sealed class PlayerWalkState : EntityWalkState
 
     private bool TryStartEncounter()
     {
-        int tileId = Level.GrassLayer.GetTile(Entity.MapX, Entity.MapY);
+        int tileId = Level.GrassLayer.GetTile(Entity.MapX, Entity.MapY).GraphicId;
         if (tileId != GameSettings.TileTallGrass) return false;
         if (!RollEncounter()) return false;
 

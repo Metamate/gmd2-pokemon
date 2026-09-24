@@ -7,14 +7,14 @@ namespace Pokemon0;
 // them through the service locator instead of mixing several global patterns.
 public sealed class GameAssets
 {
-    public TextureAtlas TileAtlas { get; }
+    public Tileset Tileset { get; }
     public TextureAtlas EntityAtlas { get; }
 
     public GameAssets(
-        TextureAtlas tileAtlas,
+        Tileset tileset,
         TextureAtlas entityAtlas)
     {
-        TileAtlas = tileAtlas;
+        Tileset = tileset;
         EntityAtlas = entityAtlas;
     }
 }

@@ -66,7 +66,7 @@ gmd2-pokemon/
 │   └── Builder/           # Builder.cs — how each kind of asset is built
 ├── GMDCore/               # Reusable engine framework (no game logic)
 │   ├── Core.cs            # MonoGame Game subclass — input, letterboxing, Pixel texture
-│   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, TileMap, BitmapFont, …
+│   ├── Graphics/          # Sprite, AnimatedSprite, TextureAtlas, Tilemap, BitmapFont, …
 │   ├── GUI/               # Panel, ProgressBar
 │   ├── States/            # GameStateBase, StateStack
 │   └── Tweening/          # TweenManager, ITweenTask
@@ -442,7 +442,7 @@ protected override void OnMovementComplete()
 
 ### `Level` — `Pokemon4/World/Level.cs`
 
-The overworld is two `TileMap` layers (base terrain and tall grass) plus the player entity. The map is generated procedurally each session: the base layer is filled with random grass tile variants; the tall grass layer only covers rows from `TallGrassStartRow` downward.
+The overworld is two `Tilemap` layers (base terrain and tall grass) plus the player entity. The map is generated procedurally each session: the base layer is filled with random grass tile variants; the tall grass layer only covers rows from `TallGrassStartRow` downward.
 
 ### Random Encounters
 
