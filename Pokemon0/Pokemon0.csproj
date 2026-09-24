@@ -3,20 +3,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
-    <RollForward>Major</RollForward>
-    <PublishReadyToRun>false</PublishReadyToRun>
-    <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
+    <ProjectReference Include="..\GMDCore\GMDCore.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="../GMDCore/GMDCore.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <!-- Rebuild when any asset changes, even if no code changed. -->
-    <UpToDateCheckInput Include="..\Content\Assets\**\*" />
-  </ItemGroup>
-  <!-- Builds the raw assets with the content builder in ..\Content before compiling. -->
+  <!-- Builds the shared assets in ..\Content\Assets with the content builder in ..\Content before compiling. -->
   <Import Project="..\Content\BuildContent.targets" />
 </Project>
